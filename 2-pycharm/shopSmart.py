@@ -14,8 +14,26 @@ def shopSmart(orderList, fruitShops):
         orderList: List of (fruit, numPound) tuples
         fruitShops: List of FruitShops
     """
-    "*** YOUR CODE HERE ***"
-    return None
+    totalCosts = []
+
+    for shop in fruitShops:
+        price = shop.getPriceOfOrder(orderList)
+        if price is not None:
+            totalCosts.append((shop, price))
+
+    if len(totalCosts) is not 0:
+        cheapest = totalCosts.pop()
+        while len(totalCosts)>0 :
+            new = totalCosts.pop()
+            if new[1] < cheapest[1]:
+                cheapest = new
+        return cheapest[0]
+
+    else:
+        return None
+
+
+
 
 fruits1 = {'apples': 2.0, 'oranges':1.0}
 fruits2 = {'apples': 1.0, 'oranges': 5.0}

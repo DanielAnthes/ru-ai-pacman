@@ -40,7 +40,7 @@ def closestAHDistance(tk, ahs):
     Returns the distance to the Albert Heijn in 'ahs' that is closest to 'tk'
     '''
     tkpos = tk.getPosition()
-    ahPositions = [ah.getPosition for ah in ahs]
+    ahPositions = [ah.getPosition() for ah in ahs]
     ahDistances = [distance(tkpos, ahpos) for ahpos in ahPositions]
     closestAHDistance = min(ahDistances)
     return closestAHDistance

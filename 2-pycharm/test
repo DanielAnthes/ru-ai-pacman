@@ -1,0 +1,7 @@
+import shop
+
+aldiName = 'Aldi'
+aldiPrices = {'apples': 1.00, 'oranges': 1.50, 'pears': 1.75}
+aldiShop = shop.FruitShop(aldiName, aldiPrices)
+order = [('apples',6)]
+print('the price of your order is:', (aldiShop.getPriceOfOrder(order)), '€')

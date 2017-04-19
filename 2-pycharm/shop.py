@@ -10,7 +10,7 @@ class FruitShop:
         """
         self.fruitPrices = fruitPrices
         self.name = name
-        print('Welcome to %s fruit shop'.format(name))
+        print('Welcome to %s fruit shop' % name)
         
     def getCostPerPound(self, fruit):
         """
@@ -27,10 +27,20 @@ class FruitShop:
             orderList: List of (fruit, numPounds) tuples
         Returns cost of orderList. If any of the fruit are
         not in the shop, the function returns None.
-        """ 
-        
-        " Insert your code for Problem 1 (buyLotsOfFruit.py). "
-        " Change fruitPrices to self.fruitPrices. "
+        """
+
+        totalPrice = 0
+
+        for fruit, pounds in orderList:
+            if fruit in self.fruitPrices:
+                totalPrice = totalPrice + self.fruitPrices[fruit] * pounds
+            else:
+                return None
+
+        return totalPrice
+
+    ' Insert your code for Problem 1 (buyLotsOfFruit.py). '
+    ' Change fruitPrices to self.fruitPrices. '
     
     def getName(self):
         return self.name
