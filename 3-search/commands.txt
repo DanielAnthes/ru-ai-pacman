@@ -1,0 +1,14 @@
+python run.py
+python run.py --layout testMaze --pacman GoWestAgent
+python run.py --layout tinyMaze --pacman GoWestAgent
+python run.py -h
+python run.py -l tinyMaze -p SearchAgent -a fn=tinyMazeSearch
+python run.py -l tinyMaze -p SearchAgent
+python run.py -l mediumMaze -p SearchAgent
+python run.py -l bigMaze -z .5 -p SearchAgent
+python run.py -l mediumMaze -p SearchAgent -a fn=bfs
+python run.py -l bigMaze -p SearchAgent -a fn=bfs -z .5
+python run.py -l mediumMaze -p SearchAgent -a fn=ucs
+python run.py -l mediumDottedMaze -p StayEastSearchAgent
+python run.py -l mediumScaryMaze -p StayWestSearchAgent
+python run.py -l bigMaze -z .5 -p SearchAgent -a fn=astar,heuristic=manhattanHeuristic
