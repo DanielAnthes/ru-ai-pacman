@@ -12,6 +12,7 @@ by Pacman agents (in searchAgents.py).
 """
 
 import util
+from game import Directions
 
 
 class SearchProblem:
@@ -72,8 +73,17 @@ def tinyMazeSearch(problem):
 
 
 
+#expects two adjacent points in the maze and returns the direction needed to get from start to goal
 
-
+def getAction(start, goal):
+    if goal[1] is (start[1] + 1) :
+        return Directions.NORTH
+    elif goal[1] is (start[1] - 1):
+        return Directions.SOUTH
+    elif goal[0] is (start[0] + 1):
+        return Directions.EAST
+    else:
+        return Directions.WEST
 
 
 def depthFirstSearch(problem):
@@ -90,26 +100,29 @@ def depthFirstSearch(problem):
     print( "Is the start a goal?", problem.isGoalState(problem.getStartState()) )
     print( "Start's successors:", problem.getSuccessors(problem.getStartState()) )
 
-    if problem.isGoalState(problem.getStartState()):
-        return []
-
     frontier = util.Stack()
     explored = []
-    frontier.push(problem.getSuccessors(problem.getStartState()))
+    start = problem.getStartState()
+    frontier.push((start,None))
 
-    while True:
-        if frontier.isEmpty():
-            return None
+    while not frontier.isEmpty():
         current = frontier.pop()
-        explored.append(current)
-
-        if problem.isGoalState(current):
-            return explored
-
-        else:
-            frontier.push(problem.getSuccessors(current))
-
-
+        if not current[0] in explored:
+            if problem.isGoalState(current[0]):
+                print(current[0], " is the goal: ", problem.isGoalState(current[0]))
+                lastNode = current
+                path = []
+                while not lastNode[1] is None:
+                   path.insert(0, getAction((lastNode[1])[0], lastNode[0]))
+                   lastNode = lastNode[1]
+                print("goal path: ", path)
+                return path                              #return directions here!
+            explored.append(current[0])
+            successors = problem.getSuccessors(current[0])
+            for s in successors:
+                frontier.push((s[0], current))
+    print("could not find a path")
+    return None
 
 
 
