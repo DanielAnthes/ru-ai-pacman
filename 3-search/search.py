@@ -15,6 +15,25 @@ import util
 from game import Directions
 
 
+class SearchNode:
+
+    def __init__(self, pos, parent, cost):
+        self.position = pos
+        self.parentNode = parent
+        self.pathCost = cost
+
+    def getCost(self):
+        return self.pathCost
+
+    def getParent(self):
+        return self.parentNode
+
+    def getPathCost(self):
+        return self.pathCost
+
+    def getPosition(self):
+        return self.position
+
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -87,7 +106,6 @@ def getAction(start, goal):
 
 
 
-
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first [p 85].
@@ -105,24 +123,26 @@ def depthFirstSearch(problem):
     frontier = util.Stack()
     explored = []
     start = problem.getStartState()
-    frontier.push((start, None))
+    frontier.push(SearchNode(start, None, 0))
 
     while not frontier.isEmpty():
         current = frontier.pop()
-        if not current[0] in explored:
-            if problem.isGoalState(current[0]):
-                print(current[0], " is the goal: ", problem.isGoalState(current[0]))
-                lastNode = current
+        if not current.getPosition() in explored:
+
+            if problem.isGoalState(current.getPosition()):
+                print(current.getPosition(), " is the goal: ", problem.isGoalState(current.getPosition()))
                 path = []
-                while not lastNode[1] is None:
-                   path.insert(0, getAction((lastNode[1])[0], lastNode[0]))
-                   lastNode = lastNode[1]
+                while not current.getParent() is None:
+                   path.insert(0, getAction(current.getParent().getPosition(), current.getPosition()))
+                   current = current.getParent()
                 print("goal path: ", path)
                 return path                              #return directions here!
-            explored.append(current[0])
-            successors = problem.getSuccessors(current[0])
+
+            explored.append(current.getPosition())
+            successors = problem.getSuccessors(current.getPosition())
             for s in successors:
-                frontier.push((s[0], current))
+                frontier.push(SearchNode(s.getPosition(), current, 0))
+
     print("could not find a path")
     return None
 
@@ -157,10 +177,39 @@ def breadthFirstSearch(problem):
     return None
 
 
+"""def uniformCostSearch(problem):
+     print("Start:", problem.getStartState())
+    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+
+    frontier = util.PriorityQueue()
+    explored = []
+    start = problem.getStartState()
+    frontier.push((start, None),0)
+
+    while not frontier.isEmpty():
+        current = frontier.pop()
+        if not current[0] in explored:
+            if problem.isGoalState(current[0]):
+                print(current[0], " is the goal: ", problem.isGoalState(current[0]))
+                lastNode = current
+                path = []
+                while not lastNode[1] is None:
+                    path.insert(0, getAction((lastNode[1])[0], lastNode[0]))
+                    lastNode = lastNode[1]
+                print("goal path: ", path)
+                return path  # return directions here!
+            explored.append(current[0])
+            successors = problem.getSuccessors(current[0])
+            for s in successors:
+                frontier.push((s[0], current))
+    print("could not find a path")
+    return None
+"""
+
 def uniformCostSearch(problem):
-    "Search the node of least total cost first. "
-    "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
+
 
 
 def nullHeuristic(state, problem=None):

@@ -12,3 +12,6 @@ python run.py -l mediumMaze -p SearchAgent -a fn=ucs
 python run.py -l mediumDottedMaze -p StayEastSearchAgent
 python run.py -l mediumScaryMaze -p StayWestSearchAgent
 python run.py -l bigMaze -z .5 -p SearchAgent -a fn=astar,heuristic=manhattanHeuristic
+
+
+-l tinyMaze -p SearchAgent -a fn=dfs
