@@ -16,7 +16,6 @@ from game import Directions
 
 
 class SearchNode:
-
     def __init__(self, pos, parent, cost):
         self.position = pos
         self.parentNode = parent
@@ -33,6 +32,7 @@ class SearchNode:
 
     def getPosition(self):
         return self.position
+
 
 class SearchProblem:
     """
@@ -89,13 +89,10 @@ def tinyMazeSearch(problem):
     return [s, s, w, s, w, w, s, w]
 
 
-
-
-
-#expects two adjacent points in the maze and returns the direction needed to get from start to goal
+# expects two adjacent points in the maze and returns the direction needed to get from start to goal
 
 def getAction(start, goal):
-    if goal[1] is (start[1] + 1) :
+    if goal[1] is (start[1] + 1):
         return Directions.NORTH
     elif goal[1] is (start[1] - 1):
         return Directions.SOUTH
@@ -104,6 +101,70 @@ def getAction(start, goal):
     else:
         return Directions.WEST
 
+
+def tracePath(node, explored):
+    path = []
+    current = node
+    while not current[1] is None:
+        path.insert(0, current[1])
+        current = findPreviousNode(current, explored)
+
+    return path
+
+
+def findPreviousNode(node, explored):
+    oldPos = node[0]
+
+    if node[1] == 'East':
+        newPos = ((oldPos[0] - 1), oldPos[1])
+
+    elif node[1] == 'North':
+        newPos = (oldPos[0], (oldPos[1] - 1))
+
+    elif node[1] == 'West':
+        newPos = ((oldPos[0] + 1), oldPos[1])
+
+    elif node[1] == 'South':
+        newPos = (oldPos[0], (oldPos[1] + 1))
+
+    else: print('OMFG!@!!!!')
+
+    # RETURN HERE DOESN'T WORK
+    result = None
+    for e in explored:
+         print(e[0])
+         if e[0] is newPos:
+            print('22222OMFG!@!!!!')
+            result = e
+    return result
+
+def contains(pos, ex):
+    for e in ex:
+        if pos == e[0]:
+            return True
+    return False
+
+
+def search(frontier, problem):
+    explored = []
+    start = problem.getStartState()
+    frontier.push((start, None, 0))
+    while not frontier.isEmpty():
+        current = frontier.pop()
+
+        if not contains(current[0], explored):
+            if problem.isGoalState(current[0]):
+                print(current[0], " is the goal: ", problem.isGoalState(current[0]))
+                path = tracePath(current, explored)
+                print("goal path: ", path)
+                return path
+            successors = problem.getSuccessors(current[0])
+            for s in successors:
+                frontier.push(s)
+            explored.append(current)
+            print(explored)
+    print("could not find a path")
+    return None
 
 
 def depthFirstSearch(problem):
@@ -116,35 +177,12 @@ def depthFirstSearch(problem):
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
 """
-    print( "Start:", problem.getStartState() )
-    print( "Is the start a goal?", problem.isGoalState(problem.getStartState()) )
-    print( "Start's successors:", problem.getSuccessors(problem.getStartState()) )
+    print("Start:", problem.getStartState())
+    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
 
     frontier = util.Stack()
-    explored = []
-    start = problem.getStartState()
-    frontier.push(SearchNode(start, None, 0))
-
-    while not frontier.isEmpty():
-        current = frontier.pop()
-        if not current.getPosition() in explored:
-
-            if problem.isGoalState(current.getPosition()):
-                print(current.getPosition(), " is the goal: ", problem.isGoalState(current.getPosition()))
-                path = []
-                while not current.getParent() is None:
-                   path.insert(0, getAction(current.getParent().getPosition(), current.getPosition()))
-                   current = current.getParent()
-                print("goal path: ", path)
-                return path                              #return directions here!
-
-            explored.append(current.getPosition())
-            successors = problem.getSuccessors(current.getPosition())
-            for s in successors:
-                frontier.push(SearchNode(s.getPosition(), current, 0))
-
-    print("could not find a path")
-    return None
+    return search(frontier, problem)
 
 
 def breadthFirstSearch(problem):
@@ -153,28 +191,7 @@ def breadthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
 
     frontier = util.Queue()
-    explored = []
-    start = problem.getStartState()
-    frontier.push((start, None))
-
-    while not frontier.isEmpty():
-        current = frontier.pop()
-        if not current[0] in explored:
-            if problem.isGoalState(current[0]):
-                print(current[0], " is the goal: ", problem.isGoalState(current[0]))
-                lastNode = current
-                path = []
-                while not lastNode[1] is None:
-                    path.insert(0, getAction((lastNode[1])[0], lastNode[0]))
-                    lastNode = lastNode[1]
-                print("goal path: ", path)
-                return path  # return directions here!
-            explored.append(current[0])
-            successors = problem.getSuccessors(current[0])
-            for s in successors:
-                frontier.push((s[0], current))
-    print("could not find a path")
-    return None
+    return search(frontier, problem)
 
 
 """def uniformCostSearch(problem):
@@ -207,9 +224,9 @@ def breadthFirstSearch(problem):
     return None
 """
 
+
 def uniformCostSearch(problem):
     util.raiseNotDefined()
-
 
 
 def nullHeuristic(state, problem=None):
@@ -229,6 +246,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     "Bonus assignment: Adjust the getSuccessors() method in CrossroadSearchAgent class"
     "in searchAgents.py and test with:"
     "python pacman.py -l bigMaze -z .5 -p CrossroadSearchAgent -a fn=astar,heuristic=manhattanHeuristic "
+
 
 # Abbreviations
 bfs = breadthFirstSearch
