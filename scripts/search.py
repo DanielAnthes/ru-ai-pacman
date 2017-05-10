@@ -88,9 +88,33 @@ def depthFirstSearch(problem):
 
 
 def breadthFirstSearch(problem):
-    "Search the shallowest nodes in the search tree first. [p 81]"
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    print("Start:", problem.getStartState())
+    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+
+    frontier = util.Queue()
+    explored = []
+    start = problem.getStartState()
+    frontier.push((start, None))
+
+    while not frontier.isEmpty():
+        current = frontier.pop()
+        if not current[0] in explored:
+            if problem.isGoalState(current[0]):
+                print(current[0], " is the goal: ", problem.isGoalState(current[0]))
+                lastNode = current
+                path = []
+                while not lastNode[1] is None:
+                    path.insert(0, getAction((lastNode[1])[0], lastNode[0]))
+                    lastNode = lastNode[1]
+                print("goal path: ", path)
+                return path  # return directions here!
+            explored.append(current[0])
+            successors = problem.getSuccessors(current[0])
+            for s in successors:
+                frontier.push((s[0], current))
+    print("could not find a path")
+    return None
 
 
 def uniformCostSearch(problem):

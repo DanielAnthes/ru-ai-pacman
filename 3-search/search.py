@@ -124,19 +124,16 @@ def findPreviousNode(node, explored):
     elif node[1] == 'West':
         newPos = ((oldPos[0] + 1), oldPos[1])
 
-    elif node[1] == 'South':
+    else:
         newPos = (oldPos[0], (oldPos[1] + 1))
 
-    else: print('OMFG!@!!!!')
-
-    # RETURN HERE DOESN'T WORK
     result = None
     for e in explored:
-         print(e[0])
-         if e[0] is newPos:
-            print('22222OMFG!@!!!!')
+        print(e[0])
+        if (e[0] == newPos):
             result = e
     return result
+
 
 def contains(pos, ex):
     for e in ex:
