@@ -129,11 +129,9 @@ def findPreviousNode(node, explored):
 
     result = None
     for e in explored:
-        print(e[0])
-        if (e[0] == newPos):
+        if e[0] == newPos:
             result = e
     return result
-
 
 def contains(pos, ex):
     for e in ex:
@@ -148,6 +146,7 @@ def search(frontier, problem):
     frontier.push((start, None, 0))
     while not frontier.isEmpty():
         current = frontier.pop()
+        print("path cost of node: ", current[2])
 
         if not contains(current[0], explored):
             if problem.isGoalState(current[0]):
@@ -158,22 +157,13 @@ def search(frontier, problem):
             successors = problem.getSuccessors(current[0])
             for s in successors:
                 frontier.push(s)
+                print(frontier)
             explored.append(current)
-            print(explored)
     print("could not find a path")
     return None
 
 
 def depthFirstSearch(problem):
-    """
-    Search the deepest nodes in the search tree first [p 85].
-
-    Your search algorithm needs to return a list of actions that reaches
-    the goal.  Make sure to implement a graph search algorithm [Fig. 3.7].
-
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
-"""
     print("Start:", problem.getStartState())
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
@@ -191,40 +181,16 @@ def breadthFirstSearch(problem):
     return search(frontier, problem)
 
 
-"""def uniformCostSearch(problem):
-     print("Start:", problem.getStartState())
+def uniformCostSearch(problem):
+    print("Start:", problem.getStartState())
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
 
-    frontier = util.PriorityQueue()
-    explored = []
-    start = problem.getStartState()
-    frontier.push((start, None),0)
+    frontier = util.PriorityQueueWithFunction(getPathCost)
+    return search(frontier, problem)
 
-    while not frontier.isEmpty():
-        current = frontier.pop()
-        if not current[0] in explored:
-            if problem.isGoalState(current[0]):
-                print(current[0], " is the goal: ", problem.isGoalState(current[0]))
-                lastNode = current
-                path = []
-                while not lastNode[1] is None:
-                    path.insert(0, getAction((lastNode[1])[0], lastNode[0]))
-                    lastNode = lastNode[1]
-                print("goal path: ", path)
-                return path  # return directions here!
-            explored.append(current[0])
-            successors = problem.getSuccessors(current[0])
-            for s in successors:
-                frontier.push((s[0], current))
-    print("could not find a path")
-    return None
-"""
-
-
-def uniformCostSearch(problem):
-    util.raiseNotDefined()
-
+def getPathCost(node):
+    return node[2]
 
 def nullHeuristic(state, problem=None):
     """
@@ -234,11 +200,18 @@ def nullHeuristic(state, problem=None):
     return 0
 
 
-def aStarSearch(problem, heuristic=nullHeuristic):
+def aStarSearch(problem, heuristic):
     "Search the node that has the lowest combined cost and heuristic first."
 
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    print("Start:", problem.getStartState())
+    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+
+    def calcNodeHeuristic(node):
+        return getPathCost(node) + heuristic(node[0],problem)
+
+    frontier = util.PriorityQueueWithFunction(calcNodeHeuristic)
+    return search(frontier, problem)
 
     "Bonus assignment: Adjust the getSuccessors() method in CrossroadSearchAgent class"
     "in searchAgents.py and test with:"
