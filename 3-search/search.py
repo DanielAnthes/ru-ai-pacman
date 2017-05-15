@@ -143,7 +143,7 @@ def contains(pos, ex):
 def search(frontier, problem):
     explored = []
     start = problem.getStartState()
-    frontier.push((start, None, 0))
+    frontier.push((start, None, 0, 0))
     while not frontier.isEmpty():
         current = frontier.pop()
         print("path cost of node: ", current[2])
@@ -155,8 +155,9 @@ def search(frontier, problem):
                 print("goal path: ", path)
                 return path
             successors = problem.getSuccessors(current[0])
-            for s in successors:
-                frontier.push(s)
+            for pos, dir, stepCost in successors:
+                newNode = (pos, dir, stepCost, current[3]+stepCost)
+                frontier.push(newNode)
                 print(frontier)
             explored.append(current)
     print("could not find a path")
@@ -190,7 +191,7 @@ def uniformCostSearch(problem):
     return search(frontier, problem)
 
 def getPathCost(node):
-    return node[2]
+    return node[3]
 
 def nullHeuristic(state, problem=None):
     """
