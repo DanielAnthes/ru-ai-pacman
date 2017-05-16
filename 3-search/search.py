@@ -146,7 +146,6 @@ def search(frontier, problem):
     frontier.push((start, None, 0, 0))
     while not frontier.isEmpty():
         current = frontier.pop()
-        print("path cost of node: ", current[2])
 
         if not contains(current[0], explored):
             if problem.isGoalState(current[0]):
@@ -158,7 +157,6 @@ def search(frontier, problem):
             for pos, dir, stepCost in successors:
                 newNode = (pos, dir, stepCost, current[3]+stepCost)
                 frontier.push(newNode)
-                print(frontier)
             explored.append(current)
     print("could not find a path")
     return None

@@ -264,17 +264,21 @@ class CrossroadSearchAgent(SearchAgent):
         for action in [Directions.NORTH, Directions.SOUTH,
                        Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
-            # Here's a code snippet for figuring out whether a new position hits a wall:
-            #   x,y = currentPosition
-            #   dx, dy = Actions.directionToVector(action)
-            #   nextx, nexty = int(x + dx), int(y + dy)
-            #   hitsWall = self.walls[nextx][nexty]
-            1
 
         # Bookkeeping for display purposes
         self._expanded += 1
 
         "*** YOUR CODE HERE ***"
+        x, y = (state[0],state[1])
+        dx, dy = Actions.directionToVector(action) # Don't know what action refers to
+        nextx, nexty = int(x + dx), int(y + dy)
+        hitsWall = self.walls[nextx][nexty]
+
+        if not hitsWall:
+            successors.append(action) # how to prevent to add successors that are already in the explored list, before checking?
+
+        if len(successors) < 3: # or <2, depends on whether we add 'backwards' steps to successors
+             self.getSuccessors((nextx,nexty)) # recursion in Python? YOLO. Probably not the best idea though.
 
         return successors
 
