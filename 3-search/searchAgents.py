@@ -7,6 +7,9 @@
 # For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
 
 """
+Edwin Wenink s4156072
+Daniel Anthes s4767799
+
 This file contains all of the agents that can be selected to
 control Pacman.  To select an agent, use the '-p' option
 when running pacman.py.  Arguments can be passed to your agent
@@ -182,7 +185,7 @@ class ClosestDotSearchAgent(SearchAgent):
     def registerInitialState(self, state):
         self.actions = []
         currentState = state
-        while(currentState.getFood().count() > 0):
+        while (currentState.getFood().count() > 0):
             nextPathSegment = self.findPathToClosestDot(
                 currentState)  # The missing piece
             self.actions += nextPathSegment
@@ -246,8 +249,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         util.raiseNotDefined()
 
 
-class CrossroadSearchAgent(SearchAgent):
-
+class CrossroadSearchProblem(PositionSearchProblem):
     def getSuccessors(self, state):
         """
         Returns successor states, the actions they require, and a cost of 1.
@@ -260,27 +262,51 @@ class CrossroadSearchAgent(SearchAgent):
          cost of expanding to that successor
         """
 
+        def numberOfSuccsessors(x, y):
+            legalMoves = 0
+            for action in [Directions.WEST, Directions.NORTH, Directions.SOUTH,
+                           Directions.EAST]:
+                dx, dy = Actions.directionToVector(action)
+                newx, newy = int(x + dx), int(y + dy)
+                isWall = self.walls[newx][newy]
+                if not isWall:
+                    legalMoves += 1
+            return legalMoves
+
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH,
                        Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
+            # Bookkeeping for display purposes
+            self._expanded += 1
+            x, y = state
+            dx, dy = Actions.directionToVector(action)  # Don't know what action refers to
+            steps = 0
+            done = False
 
-        # Bookkeeping for display purposes
-        self._expanded += 1
+            while not done:
+                nextx, nexty = int(x + dx), int(y + dy)
+                hitsWall = self.walls[nextx][nexty] #We found this does not work properly for West. self.Walls is true even if there is not a wall. We wanted to finish the bonus but we got stuck here...
 
-        "*** YOUR CODE HERE ***"
-        x, y = (state[0],state[1])
-        dx, dy = Actions.directionToVector(action) # Don't know what action refers to
-        nextx, nexty = int(x + dx), int(y + dy)
-        hitsWall = self.walls[nextx][nexty]
+                if hitsWall and steps == 0:
+                    done = True
 
-        if not hitsWall:
-            successors.append(action) # how to prevent to add successors that are already in the explored list, before checking?
+                elif hitsWall and steps > 0:
+                    successor = ((x, y), action, steps)  # this might cause problems
+                    successors.append(successor)
+                    done = True
 
-        if len(successors) < 3: # or <2, depends on whether we add 'backwards' steps to successors
-             self.getSuccessors((nextx,nexty)) # recursion in Python? YOLO. Probably not the best idea though.
+                elif (numberOfSuccsessors(nextx, nexty) > 2):
+                    successor = ((nextx, nexty), action, steps+1)#correct amount of steps?
+                    done = True
+
+                x = nextx
+                y = nexty
+                steps += 1
+
 
         return successors
+
 
 ##################
 # Mini-contest 1 #

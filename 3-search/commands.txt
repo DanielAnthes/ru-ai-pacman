@@ -18,3 +18,5 @@ python run.py -l bigMaze -z .5 -p SearchAgent -a fn=astar,heuristic=manhattanHeu
 
 
 -l bigMaze -z .5 -p SearchAgent -a fn=ucs, heuristic=manhattanHeuristic
+python run.py -l bigMaze -z .5 -p SearchAgent -a fn=astar,heuristic=manhattanHeuristic,prob=CrossroadSearchProblem
+-l bigMaze -z .5 -p SearchAgent -a fn=astar,heuristic=manhattanHeuristic,prob=CrossroadSearchProblem

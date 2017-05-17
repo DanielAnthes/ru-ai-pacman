@@ -9,30 +9,13 @@
 """
 In search.py, you will implement generic search algorithms which are called
 by Pacman agents (in searchAgents.py).
+
+Edwin Wenink s4156072
+Daniel Anthes s4767799
 """
 
 import util
 from game import Directions
-
-
-class SearchNode:
-    def __init__(self, pos, parent, cost):
-        self.position = pos
-        self.parentNode = parent
-        self.pathCost = cost
-
-    def getCost(self):
-        return self.pathCost
-
-    def getParent(self):
-        return self.parentNode
-
-    def getPathCost(self):
-        return self.pathCost
-
-    def getPosition(self):
-        return self.position
-
 
 class SearchProblem:
     """

@@ -7,6 +7,8 @@ import time
 import search
 import searchAgents
 
+#Edwin Wenink s4156072
+#Daniel Anthes s4767799
 
 class GoWestAgent(Agent):
     "An agent that goes West until it can't."
