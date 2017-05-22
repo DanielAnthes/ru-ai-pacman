@@ -1,0 +1,10 @@
+python run.py
+python run.py -p ReflexAgent
+python run.py -p ReflexAgent -l testClassic
+python run.py --frameTime 0 -p ReflexAgent -k 1
+python run.py --frameTime 0 -p ReflexAgent -k 2
+python run.py -p ReflexAgent -l openClassic -n 10 -q
+python run.py -p MinimaxAgent -l minimaxClassic -a depth=4 -k 1
+python run.py -p MinimaxAgent -l trappedClassic -a depth=3 -k 1
+python run.py -p AlphaBetaAgent -a depth=3 -l smallClassic -k 1
+python run.py -l smallClassic -p MinimaxAgent -a evalFn=better -q -n 10 -k 1

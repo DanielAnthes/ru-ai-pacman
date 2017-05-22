@@ -1,0 +1,7 @@
+python run.py -l tinyCorners -p SearchAgent -a fn=bfs,prob=CornersProblem
+python run.py -l mediumCorners -p SearchAgent -a fn=bfs,prob=CornersProblem
+python run.py -l mediumCorners -p AStarCornersAgent -z 0.5
+python run.py -l testSearch -p AStarFoodSearchAgent
+python run.py -l trickySearch -p AStarFoodSearchAgent
+python run.py -l bigSearch -p ClosestDotSearchAgent -z .5
+python run.py -l bigSearch -p ApproximateSearchAgent -z .5 -q
