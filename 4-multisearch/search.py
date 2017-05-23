@@ -69,34 +69,105 @@ def tinyMazeSearch(problem):
     return [s, s, w, s, w, w, s, w]
 
 
+def getAction(start, goal):
+    if goal[1] is (start[1] + 1):
+        return Directions.NORTH
+    elif goal[1] is (start[1] - 1):
+        return Directions.SOUTH
+    elif goal[0] is (start[0] + 1):
+        return Directions.EAST
+    else:
+        return Directions.WEST
+
+
+def tracePath(node, explored):
+    path = []
+    current = node
+    while not current[1] is None:
+        path.insert(0, current[1])
+        current = findPreviousNode(current, explored)
+
+    return path
+
+
+def findPreviousNode(node, explored):
+    oldPos = node[0]
+
+    if node[1] == 'East':
+        newPos = ((oldPos[0] - 1), oldPos[1])
+
+    elif node[1] == 'North':
+        newPos = (oldPos[0], (oldPos[1] - 1))
+
+    elif node[1] == 'West':
+        newPos = ((oldPos[0] + 1), oldPos[1])
+
+    else:
+        newPos = (oldPos[0], (oldPos[1] + 1))
+
+    result = None
+    for e in explored:
+        if e[0] == newPos:
+            result = e
+    return result
+
+def contains(pos, ex):
+    for e in ex:
+        if pos == e[0]:
+            return True
+    return False
+
+
+def search(frontier, problem):
+    explored = []
+    start = problem.getStartState()
+    frontier.push((start, None, 0, 0))
+    while not frontier.isEmpty():
+        current = frontier.pop()
+
+        if not contains(current[0], explored):
+            if problem.isGoalState(current[0]):
+                print(current[0], " is the goal: ", problem.isGoalState(current[0]))
+                path = tracePath(current, explored)
+                print("goal path: ", path)
+                return path
+            successors = problem.getSuccessors(current[0])
+            for pos, dir, stepCost in successors:
+                newNode = (pos, dir, stepCost, current[3]+stepCost)
+                frontier.push(newNode)
+            explored.append(current)
+    print("could not find a path")
+    return None
+
+
 def depthFirstSearch(problem):
-    """
-    Search the deepest nodes in the search tree first [p 85].
+    print("Start:", problem.getStartState())
+    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
 
-    Your search algorithm needs to return a list of actions that reaches
-    the goal.  Make sure to implement a graph search algorithm [Fig. 3.7].
-
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
-
-    print( "Start:", problem.getStartState() )
-    print( "Is the start a goal?", problem.isGoalState(problem.getStartState()) )
-    print( "Start's successors:", problem.getSuccessors(problem.getStartState()) )
-    """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    frontier = util.Stack()
+    return search(frontier, problem)
 
 
 def breadthFirstSearch(problem):
-    "Search the shallowest nodes in the search tree first. [p 81]"
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    print("Start:", problem.getStartState())
+    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+
+    frontier = util.Queue()
+    return search(frontier, problem)
 
 
 def uniformCostSearch(problem):
-    "Search the node of least total cost first. "
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    print("Start:", problem.getStartState())
+    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+
+    frontier = util.PriorityQueueWithFunction(getPathCost)
+    return search(frontier, problem)
+
+def getPathCost(node):
+    return node[3]
 
 
 def nullHeuristic(state, problem=None):

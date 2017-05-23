@@ -73,13 +73,19 @@ class CornersProblem(search.SearchProblem):
 
     def getStartState(self):
         "Returns the start state (in your state space, not the full Pacman state space)"
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        "A State contains the Pacman position, Direction, step cost, path cost and a list of unexplored corners"
+        cornerList = []
+        for corner in self.corners:
+            cornerList.append(corner)
+        startState = (self.startingPosition, None, 0, 0, cornerList)
+        return startState
 
     def isGoalState(self, state):
         "Returns whether this search state is a goal state of the problem"
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        if not state[4]:  # this might not work?
+            return True
+        else:
+            return False
 
     def getSuccessors(self, state):
         """
@@ -93,6 +99,27 @@ class CornersProblem(search.SearchProblem):
          cost of expanding to that successor
         """
 
+        def isCrossroad(node):
+            nrOfSuccessors = 0
+            for action in [Directions.NORTH, Directions.SOUTH,
+                           Directions.EAST, Directions.WEST]:
+                x, y = state[0]
+                dx, dy = Actions.directionToVector(action)
+                nextx, nexty = int(x + dx), int(y + dy)
+                if not self.walls[nextx][nexty]:
+                    nrOfSuccessors += 1
+            if nrOfSuccessors > 2:
+                return True
+            else:
+                return False
+
+        def updateCorners(node):
+            corners = list[state[4]]
+            if node in corners:
+                corners.remove(node)
+            return tuple(corners)
+
+
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH,
                        Directions.EAST, Directions.WEST]:
@@ -103,7 +130,43 @@ class CornersProblem(search.SearchProblem):
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
 
-            "*** YOUR CODE HERE ***"
+            x, y = state[0]
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+
+            foundSuccessor = False
+            current = (x,y)
+            while not foundSuccessor:
+                # check if next node has wall
+                if not self.walls[nextx][nexty]:
+                    # check for crossroad
+                    if not isCrossroad((nextx, nexty)):
+                        current = (nextx,nexty)
+                        nextx, nexty = int(nextx + dx), int(nexty + dy)
+                    else:
+                        newPos = (nextx, nexty)
+                        unexploredCorners = updateCorners(newPos)
+                        stepCost = 1  # maybe change this depending on feedback?
+                        pathCost = (state[3] + 1)
+
+                        successorState = (newPos, action, stepCost, pathCost, unexploredCorners)
+                        successors.append(successorState)
+                        foundSuccessor = True
+                # going into this direction would cause pacman to collide with a wall
+                else:
+                    #check if newState is different from parameter
+                    if not current == state[0]:
+                        unexploredCorners = updateCorners(current)
+                        newPos = current
+                        stepCost = 1
+                        pathCost = (state[3]+1)
+
+                        successsorState = (newPos, action, stepCost, pathCost, unexploredCorners)
+                        successors.append(successorState)
+                        foundSuccessor = True
+                    #if there is no successor in this direction
+                    else:
+                        foundSuccessor = True
 
         self._expanded += 1
         return successors
@@ -182,7 +245,7 @@ class ClosestDotSearchAgent(SearchAgent):
     def registerInitialState(self, state):
         self.actions = []
         currentState = state
-        while(currentState.getFood().count() > 0):
+        while (currentState.getFood().count() > 0):
             nextPathSegment = self.findPathToClosestDot(
                 currentState)  # The missing piece
             self.actions += nextPathSegment
@@ -247,7 +310,6 @@ class AnyFoodSearchProblem(PositionSearchProblem):
 
 
 class CrossroadSearchAgent(SearchAgent):
-
     def getSuccessors(self, state):
         """
         Returns successor states, the actions they require, and a cost of 1.
@@ -277,6 +339,7 @@ class CrossroadSearchAgent(SearchAgent):
         "*** YOUR CODE HERE ***"
 
         return successors
+
 
 ##################
 # Mini-contest 1 #
