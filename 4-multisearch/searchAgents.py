@@ -73,16 +73,18 @@ class CornersProblem(search.SearchProblem):
 
     def getStartState(self):
         "Returns the start state (in your state space, not the full Pacman state space)"
-        "A State contains the Pacman position, Direction, step cost, path cost and a list of unexplored corners"
+        "A State contains the Pacman position, Direction, step cost, path cost and a list of unexplored corners" # change description if we change the code
         cornerList = []
         for corner in self.corners:
             cornerList.append(corner)
-        startState = (self.startingPosition, None, 0, 0, cornerList)
+        #startState = (self.startingPosition, None, 0, 0, cornerList) # I changed the start state: it should indeed probably not include None, 0 0
+        startState= (self.startingPosition,cornerList)
         return startState
 
     def isGoalState(self, state):
         "Returns whether this search state is a goal state of the problem"
-        if not state[4]:  # this might not work?
+        #if not state[4]:  # this might not work?
+        if not state[0][0]: # this currently gives an error, let's fix this tomorrow
             return True
         else:
             return False
@@ -114,11 +116,12 @@ class CornersProblem(search.SearchProblem):
                 return False
 
         def updateCorners(node):
-            corners = list[state[4]]
+            #corners = list[state[4]]
+            corners=map(list,state[0]) # what does 'state' precisely refer to here?
             if node in corners:
                 corners.remove(node)
-            return tuple(corners)
-
+            #return tuple(corners)
+            return map(tuple,corners)
 
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH,
@@ -136,9 +139,9 @@ class CornersProblem(search.SearchProblem):
 
             foundSuccessor = False
             current = (x,y)
-            while not foundSuccessor:
+            while not foundSuccessor:       # -Edwin: Correct me if wrong, but doesn't the function now return only one successor: then foundSuccessor is true and the loop immediately stops
                 # check if next node has wall
-                if not self.walls[nextx][nexty]:
+                if not self.walls[nextx][nexty]:    # -Edwin. We used this code before (although the error in the bonus was in this line). I'm not completely sure whether I understand the syntax actually. self.walls is probably a tuple of a large quantity of tuples right?
                     # check for crossroad
                     if not isCrossroad((nextx, nexty)):
                         current = (nextx,nexty)
@@ -147,7 +150,7 @@ class CornersProblem(search.SearchProblem):
                         newPos = (nextx, nexty)
                         unexploredCorners = updateCorners(newPos)
                         stepCost = 1  # maybe change this depending on feedback?
-                        pathCost = (state[3] + 1)
+                        pathCost = (state[3] + 1)    # THIS PROBABLY GOES WRONG! WE ALREADY CALCULATE THE STEPCOST IN THE GENERAL SEARCH FUNCTION! WE SIMPLY NEED TO RETURN A PATHCOST OF ONE (also see description of this function).
 
                         successorState = (newPos, action, stepCost, pathCost, unexploredCorners)
                         successors.append(successorState)
@@ -156,10 +159,11 @@ class CornersProblem(search.SearchProblem):
                 else:
                     #check if newState is different from parameter
                     if not current == state[0]:
+                        # Edwin: why is this code snippet needed? The same state will never be proposed as a successor right, because it doesnt correspond to a direction
                         unexploredCorners = updateCorners(current)
                         newPos = current
                         stepCost = 1
-                        pathCost = (state[3]+1)
+                        pathCost = (state[3]+1) # IDEM
 
                         successsorState = (newPos, action, stepCost, pathCost, unexploredCorners)
                         successors.append(successorState)

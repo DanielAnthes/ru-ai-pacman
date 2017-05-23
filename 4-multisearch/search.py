@@ -91,7 +91,7 @@ def tracePath(node, explored):
 
 
 def findPreviousNode(node, explored):
-    oldPos = node[0]
+    oldPos = node[0][0] # aangepast
 
     if node[1] == 'East':
         newPos = ((oldPos[0] - 1), oldPos[1])
@@ -107,7 +107,7 @@ def findPreviousNode(node, explored):
 
     result = None
     for e in explored:
-        if e[0] == newPos:
+        if e[0][0] == newPos: # aangepast
             result = e
     return result
 
@@ -120,20 +120,20 @@ def contains(pos, ex):
 
 def search(frontier, problem):
     explored = []
-    start = problem.getStartState()
-    frontier.push((start, None, 0, 0))
+    start = problem.getStartState() #@ HEY DAN, this is why the TA probably suggested to make the nodes tuples of the form ( (pos,corner), dir, pathcost, cost) -> Because of the way we call the start state here
+    frontier.push((start, None, 0, 0)) # look at the position of 'START' here
     while not frontier.isEmpty():
         current = frontier.pop()
 
-        if not contains(current[0], explored):
+        if not contains(current[0][0], explored):
             if problem.isGoalState(current[0]):
-                print(current[0], " is the goal: ", problem.isGoalState(current[0]))
+                print(current[0][0], " is the goal: ", problem.isGoalState(current[0][0]))
                 path = tracePath(current, explored)
                 print("goal path: ", path)
                 return path
             successors = problem.getSuccessors(current[0])
-            for pos, dir, stepCost in successors:
-                newNode = (pos, dir, stepCost, current[3]+stepCost)
+            for pos, dir, stepCost, cost, cornerList in successors:
+                newNode = (pos, dir, stepCost, current[3]+stepCost, cornerList)
                 frontier.push(newNode)
             explored.append(current)
     print("could not find a path")
