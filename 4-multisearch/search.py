@@ -80,60 +80,91 @@ def getAction(start, goal):
         return Directions.WEST
 
 
-def tracePath(node, explored):
+def tracePath(node, explored, allCorners):  # node consists of ((position, corners), direction, step, pathcost)
     path = []
     current = node
     while not current[1] is None:
-        path.insert(0, current[1])
-        current = findPreviousNode(current, explored)
-
+        newSteps = [current[1]] * current[2]
+        path = newSteps + path
+        # path.insert(0, currentDirection)
+        print(current[1], "   ", current[2])
+        current = findPreviousNode(current, explored, allCorners)
     return path
 
 
-def findPreviousNode(node, explored):
-    oldPos = node[0][0] # aangepast
+def isEqual(t1, t2):
+    if t1[0] == t2[0] and sorted(t1[1]) == sorted(t2[1]):
+        return True
+    else:
+        return False
+
+
+def findPreviousNode(node, explored,
+                     allCorners):  # node consists of ((position, corners), direction, stepDistance, pathcost)
+    oldPos = (node[0])[0]  # aangepast
+    oldCorners = node[0][1]
+    # update cornerList
+    corns = allCorners
+    if oldPos in allCorners:
+        c = list(oldCorners)
+        c.append(oldPos)
+        newCorners = tuple(c)
+    else:
+        newCorners = oldCorners
+
+    stepDist = node[2]
 
     if node[1] == 'East':
-        newPos = ((oldPos[0] - 1), oldPos[1])
+        newPos = ((oldPos[0] - stepDist), oldPos[1])
 
     elif node[1] == 'North':
-        newPos = (oldPos[0], (oldPos[1] - 1))
+        newPos = (oldPos[0], (oldPos[1] - stepDist))
 
     elif node[1] == 'West':
-        newPos = ((oldPos[0] + 1), oldPos[1])
+        newPos = ((oldPos[0] + stepDist), oldPos[1])
 
     else:
-        newPos = (oldPos[0], (oldPos[1] + 1))
+        newPos = (oldPos[0], (oldPos[1] + stepDist))
 
     result = None
+
+    newTuple = (newPos, newCorners)
     for e in explored:
-        if e[0][0] == newPos: # aangepast
+        # if e[0] == newTuple: # does not work because corner list is not sorted!
+        if isEqual(e[0], newTuple):
             result = e
-    return result
+            return result
+
 
 def contains(pos, ex):
     for e in ex:
-        if pos == e[0]:
+        if isEqual(e[0], pos):
             return True
     return False
 
 
 def search(frontier, problem):
     explored = []
-    start = problem.getStartState() #@ HEY DAN, this is why the TA probably suggested to make the nodes tuples of the form ( (pos,corner), dir, pathcost, cost) -> Because of the way we call the start state here
-    frontier.push((start, None, 0, 0)) # look at the position of 'START' here
+    start = problem.getStartState()  # @ HEY DAN, this is why the TA probably suggested to make the nodes tuples of the form ( (pos,corner), dir, pathcost, cost) -> Because of the way we call the start state here
+    allCorners = start[1]
+    frontier.push((start, None, 0, 0))  # look at the position of 'START' here
     while not frontier.isEmpty():
         current = frontier.pop()
 
-        if not contains(current[0][0], explored):
+        if not contains(current[0], explored):
             if problem.isGoalState(current[0]):
-                print(current[0][0], " is the goal: ", problem.isGoalState(current[0][0]))
-                path = tracePath(current, explored)
+                print(current[0][0], " is the goal: ", problem.isGoalState(current[0]))
+                path = tracePath(current, explored, allCorners)
                 print("goal path: ", path)
                 return path
             successors = problem.getSuccessors(current[0])
-            for pos, dir, stepCost, cost, cornerList in successors:
-                newNode = (pos, dir, stepCost, current[3]+stepCost, cornerList)
+            for state, dir in successors:
+                # calculate distance to new node
+                newPos = state[0]
+                oldPos = current[0][0]
+                dist = abs(newPos[0] - oldPos[0]) + abs(newPos[1] - oldPos[1])
+
+                newNode = (state, dir, dist, current[3] + 1)
                 frontier.push(newNode)
             explored.append(current)
     print("could not find a path")
@@ -166,6 +197,7 @@ def uniformCostSearch(problem):
     frontier = util.PriorityQueueWithFunction(getPathCost)
     return search(frontier, problem)
 
+
 def getPathCost(node):
     return node[3]
 
@@ -187,6 +219,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     "Bonus assignment: Adjust the getSuccessors() method in CrossroadSearchAgent class"
     "in searchAgents.py and test with:"
     "python pacman.py -l bigMaze -z .5 -p CrossroadSearchAgent -a fn=astar,heuristic=manhattanHeuristic "
+
 
 # Abbreviations
 bfs = breadthFirstSearch

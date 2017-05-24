@@ -84,7 +84,7 @@ class CornersProblem(search.SearchProblem):
     def isGoalState(self, state):
         "Returns whether this search state is a goal state of the problem"
         #if not state[4]:  # this might not work?
-        if not state[0][0]: # this currently gives an error, let's fix this tomorrow
+        if not state[1]:
             return True
         else:
             return False
@@ -116,12 +116,13 @@ class CornersProblem(search.SearchProblem):
                 return False
 
         def updateCorners(node):
-            #corners = list[state[4]]
-            corners=map(list,state[0]) # what does 'state' precisely refer to here?
+            corners = list(state[1])
+            #corners=map(list,state[1]) # what does 'state' precisely refer to here?
             if node in corners:
+                print("found corner: ", node)
                 corners.remove(node)
-            #return tuple(corners)
-            return map(tuple,corners)
+            return tuple(corners)
+            #return map(tuple,corners)
 
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH,
@@ -139,9 +140,9 @@ class CornersProblem(search.SearchProblem):
 
             foundSuccessor = False
             current = (x,y)
-            while not foundSuccessor:       # -Edwin: Correct me if wrong, but doesn't the function now return only one successor: then foundSuccessor is true and the loop immediately stops
+            while not foundSuccessor:
                 # check if next node has wall
-                if not self.walls[nextx][nexty]:    # -Edwin. We used this code before (although the error in the bonus was in this line). I'm not completely sure whether I understand the syntax actually. self.walls is probably a tuple of a large quantity of tuples right?
+                if not self.walls[nextx][nexty]:
                     # check for crossroad
                     if not isCrossroad((nextx, nexty)):
                         current = (nextx,nexty)
@@ -149,23 +150,17 @@ class CornersProblem(search.SearchProblem):
                     else:
                         newPos = (nextx, nexty)
                         unexploredCorners = updateCorners(newPos)
-                        stepCost = 1  # maybe change this depending on feedback?
-                        pathCost = (state[3] + 1)    # THIS PROBABLY GOES WRONG! WE ALREADY CALCULATE THE STEPCOST IN THE GENERAL SEARCH FUNCTION! WE SIMPLY NEED TO RETURN A PATHCOST OF ONE (also see description of this function).
 
-                        successorState = (newPos, action, stepCost, pathCost, unexploredCorners)
+                        successorState = ((newPos, unexploredCorners), action)
                         successors.append(successorState)
                         foundSuccessor = True
                 # going into this direction would cause pacman to collide with a wall
                 else:
                     #check if newState is different from parameter
                     if not current == state[0]:
-                        # Edwin: why is this code snippet needed? The same state will never be proposed as a successor right, because it doesnt correspond to a direction
                         unexploredCorners = updateCorners(current)
                         newPos = current
-                        stepCost = 1
-                        pathCost = (state[3]+1) # IDEM
-
-                        successsorState = (newPos, action, stepCost, pathCost, unexploredCorners)
+                        successorState = ((newPos, unexploredCorners), action)
                         successors.append(successorState)
                         foundSuccessor = True
                     #if there is no successor in this direction
