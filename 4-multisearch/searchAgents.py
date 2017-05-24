@@ -124,6 +124,7 @@ class CornersProblem(search.SearchProblem):
             return tuple(corners)
             #return map(tuple,corners)
 
+
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH,
                        Directions.EAST, Directions.WEST]:
@@ -147,6 +148,13 @@ class CornersProblem(search.SearchProblem):
                     if not isCrossroad((nextx, nexty)):
                         current = (nextx,nexty)
                         nextx, nexty = int(nextx + dx), int(nexty + dy)
+                        # OK THIS CODE SNIPPET DID THE TRICK. WE SHOULD ADD THE NODES 'WITHIN' CORRIDORS IN THE EXPLORED LIST.
+                        # BUT IN A BETTER WAY THAN THIS OF COURSE.
+                        #TEST FROM HERE ON
+                        unexploredCorners = updateCorners(current)
+                        successorState = ((current, unexploredCorners), action)
+                        successors.append(successorState)
+                        # END TEST CODE
                     else:
                         newPos = (nextx, nexty)
                         unexploredCorners = updateCorners(newPos)

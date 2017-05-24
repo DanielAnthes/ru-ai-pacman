@@ -101,7 +101,7 @@ def isEqual(t1, t2):
 
 def findPreviousNode(node, explored,
                      allCorners):  # node consists of ((position, corners), direction, stepDistance, pathcost)
-    oldPos = (node[0])[0]  # aangepast
+    oldPos = (node[0])[0]
     oldCorners = node[0][1]
     # update cornerList
     corns = allCorners
@@ -145,9 +145,9 @@ def contains(pos, ex):
 
 def search(frontier, problem):
     explored = []
-    start = problem.getStartState()  # @ HEY DAN, this is why the TA probably suggested to make the nodes tuples of the form ( (pos,corner), dir, pathcost, cost) -> Because of the way we call the start state here
+    start = problem.getStartState()
     allCorners = start[1]
-    frontier.push((start, None, 0, 0))  # look at the position of 'START' here
+    frontier.push((start, None, 0, 0))
     while not frontier.isEmpty():
         current = frontier.pop()
 
@@ -166,7 +166,9 @@ def search(frontier, problem):
 
                 newNode = (state, dir, dist, current[3] + 1)
                 frontier.push(newNode)
-            explored.append(current)
+            # explored.append(current)
+            explored.insert(0,current)  # insert in beginning for easier debugging
+            print(current)
     print("could not find a path")
     return None
 
@@ -210,11 +212,15 @@ def nullHeuristic(state, problem=None):
     return 0
 
 
-def aStarSearch(problem, heuristic=nullHeuristic):
+def aStarSearch(problem, heuristic):    # Note that first the parameter was: " heuristic = nullHeuristic"
     "Search the node that has the lowest combined cost and heuristic first."
 
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    def calcNodeHeuristic(node):
+        return getPathCost(node) + heuristic(node[0],problem)
+
+    frontier = util.PriorityQueueWithFunction(calcNodeHeuristic)
+    return search(frontier, problem)
+
 
     "Bonus assignment: Adjust the getSuccessors() method in CrossroadSearchAgent class"
     "in searchAgents.py and test with:"
