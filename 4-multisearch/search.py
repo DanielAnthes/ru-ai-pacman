@@ -163,11 +163,12 @@ def search(frontier, problem):
                 newPos = state[0]
                 oldPos = current[0][0]
                 dist = abs(newPos[0] - oldPos[0]) + abs(newPos[1] - oldPos[1])
-
                 newNode = (state, dir, dist, current[3] + 1)
                 frontier.push(newNode)
             # explored.append(current)
             explored.insert(0,current)  # insert in beginning for easier debugging
+            if current[0][0] in allCorners:
+                print("found corner: ", current[0])
             print(current)
     print("could not find a path")
     return None
@@ -212,7 +213,7 @@ def nullHeuristic(state, problem=None):
     return 0
 
 
-def aStarSearch(problem, heuristic):    # Note that first the parameter was: " heuristic = nullHeuristic"
+def aStarSearch(problem, heuristic):
     "Search the node that has the lowest combined cost and heuristic first."
 
     def calcNodeHeuristic(node):

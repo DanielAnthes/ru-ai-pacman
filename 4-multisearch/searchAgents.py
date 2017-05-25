@@ -73,17 +73,17 @@ class CornersProblem(search.SearchProblem):
 
     def getStartState(self):
         "Returns the start state (in your state space, not the full Pacman state space)"
-        "A State contains the Pacman position, Direction, step cost, path cost and a list of unexplored corners" # change description if we change the code
+        "A State contains the Pacman position, Direction, step cost, path cost and a list of unexplored corners"  # change description if we change the code
         cornerList = []
         for corner in self.corners:
             cornerList.append(corner)
-        #startState = (self.startingPosition, None, 0, 0, cornerList) # I changed the start state: it should indeed probably not include None, 0 0
-        startState= (self.startingPosition,cornerList)
+        # startState = (self.startingPosition, None, 0, 0, cornerList) # I changed the start state: it should indeed probably not include None, 0 0
+        startState = (self.startingPosition, cornerList)
         return startState
 
     def isGoalState(self, state):
         "Returns whether this search state is a goal state of the problem"
-        #if not state[4]:  # this might not work?
+        # if not state[4]:  # this might not work?
         if not state[1]:
             return True
         else:
@@ -105,7 +105,7 @@ class CornersProblem(search.SearchProblem):
             nrOfSuccessors = 0
             for action in [Directions.NORTH, Directions.SOUTH,
                            Directions.EAST, Directions.WEST]:
-                x, y = state[0]
+                x, y = node
                 dx, dy = Actions.directionToVector(action)
                 nextx, nexty = int(x + dx), int(y + dy)
                 if not self.walls[nextx][nexty]:
@@ -117,13 +117,12 @@ class CornersProblem(search.SearchProblem):
 
         def updateCorners(node):
             corners = list(state[1])
-            #corners=map(list,state[1]) # what does 'state' precisely refer to here?
+            # corners=map(list,state[1]) # what does 'state' precisely refer to here?
             if node in corners:
-                print("found corner: ", node)
+                # print("found corner: ", node)
                 corners.remove(node)
             return tuple(corners)
-            #return map(tuple,corners)
-
+            # return map(tuple,corners)
 
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH,
@@ -140,22 +139,24 @@ class CornersProblem(search.SearchProblem):
             nextx, nexty = int(x + dx), int(y + dy)
 
             foundSuccessor = False
-            current = (x,y)
+            current = (x, y)
             while not foundSuccessor:
                 # check if next node has wall
                 if not self.walls[nextx][nexty]:
                     # check for crossroad
                     if not isCrossroad((nextx, nexty)):
-                        current = (nextx,nexty)
+                        current = (nextx, nexty)
                         nextx, nexty = int(nextx + dx), int(nexty + dy)
                         # OK THIS CODE SNIPPET DID THE TRICK. WE SHOULD ADD THE NODES 'WITHIN' CORRIDORS IN THE EXPLORED LIST.
                         # BUT IN A BETTER WAY THAN THIS OF COURSE.
-                        #TEST FROM HERE ON
-                        unexploredCorners = updateCorners(current)
+                        # TEST FROM HERE ON
+                        """unexploredCorners = updateCorners(current)
                         successorState = ((current, unexploredCorners), action)
                         successors.append(successorState)
+                        """
                         # END TEST CODE
                     else:
+                        # nextx, nexty = int(nextx + dx), int(nexty + dy)
                         newPos = (nextx, nexty)
                         unexploredCorners = updateCorners(newPos)
 
@@ -164,14 +165,14 @@ class CornersProblem(search.SearchProblem):
                         foundSuccessor = True
                 # going into this direction would cause pacman to collide with a wall
                 else:
-                    #check if newState is different from parameter
+                    # check if newState is different from parameter
                     if not current == state[0]:
                         unexploredCorners = updateCorners(current)
                         newPos = current
                         successorState = ((newPos, unexploredCorners), action)
                         successors.append(successorState)
                         foundSuccessor = True
-                    #if there is no successor in this direction
+                    # if there is no successor in this direction
                     else:
                         foundSuccessor = True
 
@@ -208,12 +209,53 @@ def cornersHeuristic(state, problem):
     it should be admissible.  (You need not worry about consistency for
     this heuristic to receive full credit.)
     """
+
+    # Our heuristic recursively finds the closest corner, and returns the total past cost when all corners are visited in this manner
+
+
     corners = problem.corners  # These are the corner coordinates
     # These are the walls of the maze, as a Grid (game.py)
     walls = problem.walls
 
-    "*** YOUR CODE HERE ***"
-    return 0  # Default to trivial solution
+    pos = state[0]
+    cost = 99999999999999
+
+    def calculateDistance(pos, corner):
+        dist = abs(corner[0] - pos[0]) + abs(corner[1] - pos[1])
+        return dist
+
+    def allDistances(pos, corners, totalCost):
+
+        shortestDistance = cost
+        closestNode=None
+        for corner in corners:
+            distance = calculateDistance(pos, corner)
+            if distance<shortestDistance:
+                shortestDistance=distance
+                closestNode=corner
+
+        distance = calculateDistance(pos, closestNode)
+        newCorners = list(corners)
+        newCorners.remove(closestNode)
+        if newCorners:
+            newCorners = tuple(newCorners)
+            return allDistances(closestNode, newCorners, totalCost + distance)
+
+        else:
+            return totalCost + distance
+
+    """for corner in corners:
+        distance = calculateDistance(startP, corner)
+        newCorners = list(corners)
+        if newCorners:
+            newCorners.remove(corner)
+            newCorners = tuple(newCorners)
+            return solutions + [allDistances(corner, newCorners, totalCost+distance, solutions)]
+        else:
+            return solutions.append(distance)
+    """
+
+    return allDistances(pos,corners,0)
 
 
 def foodHeuristic(state, problem):
