@@ -166,7 +166,9 @@ def aStarSearch(problem, heuristic):
     "Search the node that has the lowest combined cost and heuristic first."
 
     def calcNodeHeuristic(node):
-        return getPathCost(node) + heuristic(node[0],problem)
+        heuristicValue=getPathCost(node) + heuristic(node[0],problem)
+        print(heuristicValue)
+        return heuristicValue
 
     frontier = util.PriorityQueueWithFunction(calcNodeHeuristic)
     return search(frontier, problem)

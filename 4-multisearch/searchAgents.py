@@ -190,6 +190,8 @@ class CornersProblem(search.SearchProblem):
         return len(actions)
 
 
+
+
 def cornersHeuristic(state, problem):
     """
     A heuristic for the CornersProblem that you defined.
@@ -213,21 +215,16 @@ def cornersHeuristic(state, problem):
     walls = problem.walls
 
     pos = state[0]
-    cost = 99999999999999
-
-    def calculateDistance(pos, corner):
-        dist = abs(corner[0] - pos[0]) + abs(corner[1] - pos[1])
-        return dist
 
     def allDistances(pos, corners, totalCost):
 
-        shortestDistance = cost
-        closestNode=None
+        shortestDistance = 9999999999
+        closestNode = None
         for corner in corners:
             distance = calculateDistance(pos, corner)
-            if distance<shortestDistance:
-                shortestDistance=distance
-                closestNode=corner
+            if distance < shortestDistance:
+                shortestDistance = distance
+                closestNode = corner
 
         distance = calculateDistance(pos, closestNode)
         newCorners = list(corners)
@@ -239,8 +236,13 @@ def cornersHeuristic(state, problem):
         else:
             return totalCost + distance
 
+    # return allDistances(pos,corners,0) = 952 nodes, cost 107
     return allDistances(pos,corners,0)
 
+
+def calculateDistance(pos1, pos2):
+        dist = abs(pos2[0] - pos1[0]) + abs(pos2[1] - pos1[1])
+        return dist
 
 def foodHeuristic(state, problem):
     """
@@ -268,8 +270,47 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+
+    heuristicValue=0
+    pellets = foodGrid.asList()
+    closestDistance=99999999999999
+    farthestDistance=0
+
+    if len(pellets)==0:
+        return 0
+
+    for pellet in pellets:
+        manhattanD = calculateDistance(pellet, position)
+        if manhattanD<closestDistance:
+            closestPellet=pellet
+            closestDistance=manhattanD
+        if manhattanD>farthestDistance:
+            farthestPellet=pellet
+            farthestDistance=manhattanD
+
+        leftPoints2 = 0
+        for (x, y) in pellets:
+            flag = 0
+            if x != position[0] and x != closestPellet[0]:
+                leftPoints2 = leftPoints2 + 1
+                flag = 1
+
+            if flag == 0:
+                if y != position[1] and y != closestPellet[1]:
+                    leftPoints2 = leftPoints2 + 1
+
+    # return 0: nodes=16465, pathcost=60
+    # return farthestDistance-closestDistance: nodes=14167, pathcost=68, inconsistent
+    # return closestDistance: nodes=13464, pathcost=60, inconsistent
+    # return farthestDistance: nodes=9535, pathcost=60, inconsistent
+    # return closestDistance + farthestDistance: nodes=16267, pathcost-60, inconsistent
+    # return calculateDistance(closestPellet,farthestPellet): nodes=12859, pathcost=60, inconsistent
+    # return (farthestDistance+closestDistance)/2 -> 100000
+    # return (farthestDistance - closestDistance) / 2 -> 13102, 60
+
+    # return farthestDistance + leftPoints2 : nodes: 8370, pathcost=60
+
+    return farthestDistance
 
 
 class ClosestDotSearchAgent(SearchAgent):
