@@ -158,18 +158,26 @@ def search(frontier, problem):
                 print("goal path: ", path)
                 return path
             successors = problem.getSuccessors(current[0])
-            for state, dir in successors:
+            for state, dir, stepCost in successors:
+                # @Daniel --> I moved this calculation to the getSuccessor function to make our search general again.
+                # All successorfunctions must return triples, ours only returned a tuple of 2.
+                # But the calculation below was necessary for our corridor implementation: our successorfunction adds it to the successor as 'stepCost' now
+                # The successorfunction of the Foodproblem returns 1 for StepCost. Previously, this gave an error because we didn't include stepCost at all in our for-loop.
+                # As far as I can see, we only need to solve the "traceback" problem now.
+                #
+                # A suggestion for a solution: the states for the FoodSearch problem are also tuples of the form (pos,nextFood).
+                # A solution would be to make the tracePath a bit more general by not specifically checking for corners but checking for the identity of the 2nd element of the state/current[0] -> (cornersList / nextFood)
+
+                """
                 # calculate distance to new node
                 newPos = state[0]
                 oldPos = current[0][0]
                 dist = abs(newPos[0] - oldPos[0]) + abs(newPos[1] - oldPos[1])
-                newNode = (state, dir, dist, current[3] + 1)
+                """
+                newNode = (state, dir, stepCost, current[3] + 1)
                 frontier.push(newNode)
-            # explored.append(current)
-            explored.insert(0,current)  # insert in beginning for easier debugging
-            if current[0][0] in allCorners:
-                print("found corner: ", current[0])
-            print(current)
+            explored.append(current)
+            #explored.insert(0,current)  # insert in beginning for easier debugging
     print("could not find a path")
     return None
 
@@ -180,6 +188,9 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
 
     frontier = util.Stack()
+
+
+
     return search(frontier, problem)
 
 

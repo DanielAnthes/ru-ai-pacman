@@ -140,6 +140,7 @@ class CornersProblem(search.SearchProblem):
 
             foundSuccessor = False
             current = (x, y)
+
             while not foundSuccessor:
                 # check if next node has wall
                 if not self.walls[nextx][nexty]:
@@ -147,20 +148,11 @@ class CornersProblem(search.SearchProblem):
                     if not isCrossroad((nextx, nexty)):
                         current = (nextx, nexty)
                         nextx, nexty = int(nextx + dx), int(nexty + dy)
-                        # OK THIS CODE SNIPPET DID THE TRICK. WE SHOULD ADD THE NODES 'WITHIN' CORRIDORS IN THE EXPLORED LIST.
-                        # BUT IN A BETTER WAY THAN THIS OF COURSE.
-                        # TEST FROM HERE ON
-                        """unexploredCorners = updateCorners(current)
-                        successorState = ((current, unexploredCorners), action)
-                        successors.append(successorState)
-                        """
-                        # END TEST CODE
                     else:
-                        # nextx, nexty = int(nextx + dx), int(nexty + dy)
                         newPos = (nextx, nexty)
                         unexploredCorners = updateCorners(newPos)
-
-                        successorState = ((newPos, unexploredCorners), action)
+                        dist = abs(newPos[0] - x) + abs(newPos[1] - y)
+                        successorState = ((newPos, unexploredCorners), action, dist)
                         successors.append(successorState)
                         foundSuccessor = True
                 # going into this direction would cause pacman to collide with a wall
@@ -169,12 +161,15 @@ class CornersProblem(search.SearchProblem):
                     if not current == state[0]:
                         unexploredCorners = updateCorners(current)
                         newPos = current
-                        successorState = ((newPos, unexploredCorners), action)
+                        dist = abs(newPos[0] - x) + abs(newPos[1] - y)
+                        successorState = ((newPos, unexploredCorners), action, dist)
                         successors.append(successorState)
                         foundSuccessor = True
                     # if there is no successor in this direction
                     else:
                         foundSuccessor = True
+
+
 
         self._expanded += 1
         return successors
@@ -243,17 +238,6 @@ def cornersHeuristic(state, problem):
 
         else:
             return totalCost + distance
-
-    """for corner in corners:
-        distance = calculateDistance(startP, corner)
-        newCorners = list(corners)
-        if newCorners:
-            newCorners.remove(corner)
-            newCorners = tuple(newCorners)
-            return solutions + [allDistances(corner, newCorners, totalCost+distance, solutions)]
-        else:
-            return solutions.append(distance)
-    """
 
     return allDistances(pos,corners,0)
 
@@ -413,7 +397,7 @@ class ApproximateSearchAgent(Agent):
 
 
 class AStarCornersAgent(SearchAgent):
-    "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
+    "A SearchAgent for FoodSearchProblem using A* and your cornersHeuristic"
 
     def __init__(self):
         self.searchFunction = lambda prob: search.aStarSearch(
