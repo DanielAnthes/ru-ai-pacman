@@ -80,7 +80,7 @@ def getAction(start, goal):
         return Directions.WEST
 
 def isEqual(t1, t2):
-    if t1[0] == t2[0] and sorted(t1[1]) == sorted(t2[1]):
+    if t1[0] == t2[0] and (t1[1]) == (t2[1]):
         return True
     else:
         return False
