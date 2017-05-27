@@ -79,61 +79,11 @@ def getAction(start, goal):
     else:
         return Directions.WEST
 
-
-def tracePath(node, explored, allCorners):  # node consists of ((position, corners), direction, step, pathcost)
-    path = []
-    current = node
-    while not current[1] is None:
-        newSteps = [current[1]] * current[2]
-        path = newSteps + path
-        # path.insert(0, currentDirection)
-        print(current[1], "   ", current[2])
-        current = findPreviousNode(current, explored, allCorners)
-    return path
-
-
 def isEqual(t1, t2):
     if t1[0] == t2[0] and sorted(t1[1]) == sorted(t2[1]):
         return True
     else:
         return False
-
-
-def findPreviousNode(node, explored,
-                     allCorners):  # node consists of ((position, corners), direction, stepDistance, pathcost)
-    oldPos = (node[0])[0]
-    oldCorners = node[0][1]
-    # update cornerList
-    corns = allCorners
-    if oldPos in allCorners:
-        c = list(oldCorners)
-        c.append(oldPos)
-        newCorners = tuple(c)
-    else:
-        newCorners = oldCorners
-
-    stepDist = node[2]
-
-    if node[1] == 'East':
-        newPos = ((oldPos[0] - stepDist), oldPos[1])
-
-    elif node[1] == 'North':
-        newPos = (oldPos[0], (oldPos[1] - stepDist))
-
-    elif node[1] == 'West':
-        newPos = ((oldPos[0] + stepDist), oldPos[1])
-
-    else:
-        newPos = (oldPos[0], (oldPos[1] + stepDist))
-
-    result = None
-
-    newTuple = (newPos, newCorners)
-    for e in explored:
-        # if e[0] == newTuple: # does not work because corner list is not sorted!
-        if isEqual(e[0], newTuple):
-            result = e
-            return result
 
 
 def contains(pos, ex):
@@ -147,34 +97,22 @@ def search(frontier, problem):
     explored = []
     start = problem.getStartState()
     allCorners = start[1]
-    frontier.push((start, None, 0, 0))
+    frontier.push((start, None, 0, 0, []))
     while not frontier.isEmpty():
         current = frontier.pop()
 
         if not contains(current[0], explored):
             if problem.isGoalState(current[0]):
                 print(current[0][0], " is the goal: ", problem.isGoalState(current[0]))
-                path = tracePath(current, explored, allCorners)
+                path = current[4]
                 print("goal path: ", path)
                 return path
             successors = problem.getSuccessors(current[0])
             for state, dir, stepCost in successors:
-                # @Daniel --> I moved this calculation to the getSuccessor function to make our search general again.
-                # All successorfunctions must return triples, ours only returned a tuple of 2.
-                # But the calculation below was necessary for our corridor implementation: our successorfunction adds it to the successor as 'stepCost' now
-                # The successorfunction of the Foodproblem returns 1 for StepCost. Previously, this gave an error because we didn't include stepCost at all in our for-loop.
-                # As far as I can see, we only need to solve the "traceback" problem now.
-                #
-                # A suggestion for a solution: the states for the FoodSearch problem are also tuples of the form (pos,nextFood).
-                # A solution would be to make the tracePath a bit more general by not specifically checking for corners but checking for the identity of the 2nd element of the state/current[0] -> (cornersList / nextFood)
-
-                """
-                # calculate distance to new node
-                newPos = state[0]
-                oldPos = current[0][0]
-                dist = abs(newPos[0] - oldPos[0]) + abs(newPos[1] - oldPos[1])
-                """
-                newNode = (state, dir, stepCost, current[3] + 1)
+                oldPath = current[4]
+                newSteps = [dir] * stepCost
+                newPath = oldPath + newSteps
+                newNode = (state, dir, stepCost, current[3] + 1, newPath)
                 frontier.push(newNode)
             explored.append(current)
             #explored.insert(0,current)  # insert in beginning for easier debugging
