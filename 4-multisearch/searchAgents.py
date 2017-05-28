@@ -304,30 +304,19 @@ def foodHeuristic(state, problem):
 
     for pellet in pellets:
         manhattanD = calculateDistance(pellet, position)
-        if manhattanD<closestDistance:
-            closestPellet=pellet
-            closestDistance=manhattanD
         if manhattanD>farthestDistance:
             farthestPellet=pellet
             farthestDistance=manhattanD
 
         pelletsLeft = 0
         for (x, y) in pellets:
-            if x != position[0] and x != closestPellet[0]:
+            if x != position[0]:
                 pelletsLeft = pelletsLeft + 1
             else:
-                if y != position[1] and y != closestPellet[1]:
+                if y != position[1]:
                     pelletsLeft = pelletsLeft + 1
 
     # return 0: nodes=16465, pathcost=60
-    # return farthestDistance-closestDistance: nodes=14167, pathcost=68
-    # return closestDistance: nodes=13464, pathcost=60
-    # return farthestDistance: nodes=9535, pathcost=60
-    # return closestDistance + farthestDistance: nodes=16267, pathcost-60,
-    # return calculateDistance(closestPellet,farthestPellet): nodes=12859, pathcost=60,
-    # return (farthestDistance+closestDistance)/2 -> 100000
-    # return (farthestDistance - closestDistance) / 2 -> 13102, 60
-    # return pelletsLeft -> 12518, 60
     # return farthestDistance + pelletsLeft : nodes: 8370, pathcost=60
 
     return farthestDistance+pelletsLeft
