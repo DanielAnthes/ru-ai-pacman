@@ -207,7 +207,7 @@ def cornersHeuristic(state, problem):
                 corners.append(corner)
             return solutions
 
-    return min(allPaths(pos,0))
+    return min(allPaths(pos,0))/2
 
 
 def cornersHeuristic2(state, problem):
@@ -306,29 +306,26 @@ def foodHeuristic(state, problem):
             farthestPellet=pellet
             farthestDistance=manhattanD
 
-        leftPoints2 = 0
+        pelletsLeft = 0
         for (x, y) in pellets:
-            flag = 0
             if x != position[0] and x != closestPellet[0]:
-                leftPoints2 = leftPoints2 + 1
-                flag = 1
-
-            if flag == 0:
+                pelletsLeft = pelletsLeft + 1
+            else:
                 if y != position[1] and y != closestPellet[1]:
-                    leftPoints2 = leftPoints2 + 1
+                    pelletsLeft = pelletsLeft + 1
 
     # return 0: nodes=16465, pathcost=60
-    # return farthestDistance-closestDistance: nodes=14167, pathcost=68, inconsistent
-    # return closestDistance: nodes=13464, pathcost=60, inconsistent
-    # return farthestDistance: nodes=9535, pathcost=60, inconsistent
-    # return closestDistance + farthestDistance: nodes=16267, pathcost-60, inconsistent
-    # return calculateDistance(closestPellet,farthestPellet): nodes=12859, pathcost=60, inconsistent
+    # return farthestDistance-closestDistance: nodes=14167, pathcost=68
+    # return closestDistance: nodes=13464, pathcost=60
+    # return farthestDistance: nodes=9535, pathcost=60
+    # return closestDistance + farthestDistance: nodes=16267, pathcost-60,
+    # return calculateDistance(closestPellet,farthestPellet): nodes=12859, pathcost=60,
     # return (farthestDistance+closestDistance)/2 -> 100000
     # return (farthestDistance - closestDistance) / 2 -> 13102, 60
 
-    # return farthestDistance + leftPoints2 : nodes: 8370, pathcost=60
+    # return farthestDistance + pelletsLeft : nodes: 8370, pathcost=60
 
-    return farthestDistance
+    return farthestDistance + pelletsLeft
 
 
 class ClosestDotSearchAgent(SearchAgent):
