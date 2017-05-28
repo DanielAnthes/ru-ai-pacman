@@ -190,9 +190,27 @@ class CornersProblem(search.SearchProblem):
         return len(actions)
 
 
-
-
 def cornersHeuristic(state, problem):
+    corners = list(problem.corners)
+    walls = problem.walls
+    pos = state[0]
+
+    def allPaths(start, cost):
+        if not corners:
+            return [cost]
+        else:
+            solutions = []
+            for corner in corners:
+                dist = calculateDistance(start, corner)
+                corners.remove(corner)
+                solutions = solutions + (allPaths(corner, cost + dist))
+                corners.append(corner)
+            return solutions
+
+    return min(allPaths(pos,0))
+
+
+def cornersHeuristic2(state, problem):
     """
     A heuristic for the CornersProblem that you defined.
 
