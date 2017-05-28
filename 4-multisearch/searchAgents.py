@@ -191,6 +191,21 @@ class CornersProblem(search.SearchProblem):
 
 
 def cornersHeuristic(state, problem):
+    """
+        A heuristic for the CornersProblem that you defined.
+
+          state:   The current search state
+                   (a data structure you chose in your search problem)
+
+          problem: The CornersProblem instance for this layout.
+
+        This function should always return a number that is a lower bound
+        on the shortest path from the state to a goal of the problem; i.e.
+        it should be admissible.  (You need not worry about consistency for
+        this heuristic to receive full credit.)
+        """
+
+    # Finds the shortest manhattan distance going through all corners using recursion
     corners = list(problem.corners)
     walls = problem.walls
     pos = state[0]
@@ -209,24 +224,11 @@ def cornersHeuristic(state, problem):
 
     return min(allPaths(pos,0))/2
 
-
 def cornersHeuristic2(state, problem):
-    """
-    A heuristic for the CornersProblem that you defined.
 
-      state:   The current search state
-               (a data structure you chose in your search problem)
-
-      problem: The CornersProblem instance for this layout.
-
-    This function should always return a number that is a lower bound
-    on the shortest path from the state to a goal of the problem; i.e.
-    it should be admissible.  (You need not worry about consistency for
-    this heuristic to receive full credit.)
-    """
 
     # Our heuristic recursively finds the closest corner, and returns the total past cost when all corners are visited in this manner
-
+    # Note that we don't actually use this heuristic at the moment. We consider it a bit too greedy.
 
     corners = problem.corners  # These are the corner coordinates
     # These are the walls of the maze, as a Grid (game.py)
@@ -287,9 +289,12 @@ def foodHeuristic(state, problem):
       problem.heuristicInfo['wallCount'] = problem.walls.count()
     Subsequent calls to this heuristic can access problem.heuristicInfo['wallCount']
     """
-    position, foodGrid = state
 
-    heuristicValue=0
+    # our heuristic combines two values.
+    # 1) the distance to the furthest piece of food (the lower the better)
+    # 2) a measure of how much pallets are left that are not on the axis of the candidate node (the lower the better). So basically a measure of how many pellets are easily accessible from the candidate node.
+
+    position, foodGrid = state
     pellets = foodGrid.asList()
     closestDistance=99999999999999
     farthestDistance=0
@@ -322,10 +327,10 @@ def foodHeuristic(state, problem):
     # return calculateDistance(closestPellet,farthestPellet): nodes=12859, pathcost=60,
     # return (farthestDistance+closestDistance)/2 -> 100000
     # return (farthestDistance - closestDistance) / 2 -> 13102, 60
-
+    # return pelletsLeft -> 12518, 60
     # return farthestDistance + pelletsLeft : nodes: 8370, pathcost=60
 
-    return farthestDistance + pelletsLeft
+    return farthestDistance+pelletsLeft
 
 
 class ClosestDotSearchAgent(SearchAgent):
