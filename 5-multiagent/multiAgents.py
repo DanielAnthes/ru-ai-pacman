@@ -73,6 +73,7 @@ class ReflexAgent(Agent):
     """
     # Useful information you can extract from a GameState (pacman.py)
     successorGameState = currentGameState.generatePacmanSuccessor(action)
+    currentPos = currentGameState.getPacmanPosition()
     newPos = successorGameState.getPacmanPosition()
     newX, newY = newPos
     oldFood = currentGameState.getFood()
@@ -81,19 +82,24 @@ class ReflexAgent(Agent):
     ghostPositions = currentGameState.getGhostPositions()
     caps = currentGameState.getCapsules()
     foodList = oldFood.asList()
-    amountOfFood = currentGameState.getNumFood()
+    oldamountOfFood = currentGameState.getNumFood()
+    newamountOfFood = successorGameState.getNumFood()
     "*** YOUR CODE HERE ***"
 
     def calculateDistance(p1, p2):
         return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
 
-    def closestGhostDistance(pacman, ghosts):
+    def closestGhostValue(pacman, ghosts):
         dist = 99999
         for ghost in ghosts:
             newDist = calculateDistance(pacman, ghost)
             if newDist < dist:
                 dist = newDist
-        return dist**2
+        if dist < 3:
+            return -999999
+        else:
+            return dist
+
 
     def furthestFood():
         maxDist = 0
@@ -111,17 +117,21 @@ class ReflexAgent(Agent):
                 minDist = d
         return minDist
 
-    if successorGameState.hasFood(newX, newY):
-        hungry = 9999
-    else:
-        hungry = 0
+    def eatFood():
+        if not (oldamountOfFood - newamountOfFood) == 0:
+            return 1000
+        else:
+            return 0
 
-    closestGhost = closestGhostDistance(newPos, ghostPositions)
+
+
+    closestGhost = closestGhostValue(newPos, ghostPositions)
     furthestFood = furthestFood()
     closestFood = closestFood()
-    value = closestGhost*0.5 + furthestFood*0.1 - closestFood*2 - amountOfFood + hungry
+    hungry = eatFood()
+    value = closestGhost + furthestFood*0.1 - closestFood*50 + hungry
 
-    print("closest ghost: " + str(closestGhost) + "     closest food: " + str(closestFood) + "     furthestFood: " + str(furthestFood) + "     amount of food left: " + str(amountOfFood) + "     value: " + str(value))
+    print("closest ghost: " + str(closestGhost) + "     closest food: " + str(closestFood) + "     furthestFood: " + str(furthestFood) + "     amount of food left: " + str(newamountOfFood) + "     value: " + str(value))
 
     return value
 
