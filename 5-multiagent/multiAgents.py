@@ -45,6 +45,17 @@ class ReflexAgent(Agent):
 
     return legalMoves[chosenIndex]
 
+  def calculateDistance(self,p1,p2):
+      return abs(p1[0]-p2[0]) + abs(p1[1]-p2[1])
+
+  def closestGhostDistance(self, pacman, ghosts):
+      dist = 99999
+      for ghost in ghosts:
+          newDist = calculateDistance(pacman, ghost)
+          if newDist < dist:
+              dist = newDist
+      return dist
+
   def evaluationFunction(self, currentGameState, action):
     """
     Design a better evaluation function here.
@@ -66,9 +77,47 @@ class ReflexAgent(Agent):
     oldFood = currentGameState.getFood()
     newGhostStates = successorGameState.getGhostStates()
     newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-
+    ghostPositions = currentGameState.getGhostPositions()
+    caps = currentGameState.getCapsules()
+    foodList = oldFood.asList()
+    amountOfFood = currentGameState.getNumFood()
     "*** YOUR CODE HERE ***"
-    return successorGameState.getScore()
+
+    def calculateDistance(p1, p2):
+        return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
+
+    def closestGhostDistance(pacman, ghosts):
+        dist = 99999
+        for ghost in ghosts:
+            newDist = calculateDistance(pacman, ghost)
+            if newDist < dist:
+                dist = newDist
+        return dist**2
+
+    def furthestFood():
+        maxDist = 0
+        for f in foodList:
+            d = calculateDistance(newPos, f)
+            if d > maxDist:
+                maxDist = d
+        return maxDist
+
+    def closestFood():
+        minDist = 99999
+        for f in foodList:
+            d = calculateDistance(newPos, f)
+            if d < minDist:
+                minDist = d
+        return minDist
+
+    closestGhost = closestGhostDistance(newPos, ghostPositions)
+    furthestFood = furthestFood()
+    closestFood = closestFood()
+    value = closestGhost*0.5 + furthestFood - closestFood - amountOfFood
+
+    print("closest ghost: " + str(closestGhost) + "     closest food: " + str(closestFood) + "     furthestFood: " + str(furthestFood) + "     amount of food left: " + str(amountOfFood) + "     value: " + str(value))
+
+    return value
 
 def scoreEvaluationFunction(currentGameState):
   """
