@@ -124,12 +124,11 @@ class ReflexAgent(Agent):
             return 0
 
 
-
     closestGhost = closestGhostValue(newPos, ghostPositions)
     furthestFood = furthestFood()
     closestFood = closestFood()
     hungry = eatFood()
-    value = closestGhost + furthestFood*0.1 - closestFood*50 + hungry
+    value = closestGhost + furthestFood*0.1 - closestFood*20000 + hungry
 
     print("closest ghost: " + str(closestGhost) + "     closest food: " + str(closestFood) + "     furthestFood: " + str(furthestFood) + "     amount of food left: " + str(newamountOfFood) + "     value: " + str(value))
 
@@ -190,8 +189,60 @@ class MinimaxAgent(MultiAgentSearchAgent):
       gameState.getNumAgents():
         Returns the total number of agents in the game
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+
+    def maxOnFirstIndex(t1,t2):
+        if t1[0] > t2[0]:
+            return t1
+        else:
+            return t2
+
+    def minOnFirstIndex(t1, t2):
+        if t1[0] < t2[0]:
+            return t1
+        else:
+            return t2
+
+    #assuming the algorithm will never initially be called in a final state or with depth 0, in this case the algorithm will return None
+    def minimax(node, depth, pacmansturn, savedAction):
+        if node.isWin() or node.isLose():
+            terminal = True
+        else:
+            terminal = False
+
+        if depth == 0 or terminal:
+            return (self.evaluationFunction(node), savedAction)
+
+        if pacmansturn:
+            bestVal = (-99999, None)
+            legalActions = node.getLegalPacmanActions()
+            successors = []
+            for action in legalActions:
+                successors.append((node.generatePacmanSuccessor(action), action))
+
+            for successor, action in successors:
+                if savedAction == None:
+                    value = minimax(successor, depth, False, action)
+                else:
+                    value = minimax(successor, depth, False, savedAction)
+                bestVal = maxOnFirstIndex(bestVal,value)
+
+            return bestVal
+
+        else:
+            bestVal = (99999, None)
+            legalActions = node.getLegalActions(1)
+            successors = []
+            for action in legalActions:
+                successors.append((node.generateSuccessor(1, action), savedAction))
+
+            for successor, action in successors:
+                value = minimax(successor, depth - 1, True, savedAction)
+                bestVal = minOnFirstIndex(bestVal, value)
+            return bestVal
+
+    dir = (minimax(gameState, self.depth, True, None))[1]
+    return dir
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
   """

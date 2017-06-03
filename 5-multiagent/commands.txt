@@ -8,3 +8,6 @@ python run.py -p MinimaxAgent -l minimaxClassic -a depth=4 -k 1
 python run.py -p MinimaxAgent -l trappedClassic -a depth=3 -k 1
 python run.py -p AlphaBetaAgent -a depth=3 -l smallClassic -k 1
 python run.py -l smallClassic -p MinimaxAgent -a evalFn=better -q -n 10 -k 1
+
+
+ -p ReflexAgent -l testClassic -n 100 -q
