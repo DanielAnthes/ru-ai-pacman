@@ -207,7 +207,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 successors.append(node.generatePacmanSuccessor(action))
 
             for successor in successors:
-                value = minimax(successor, depth, False)
+                value = minimax(successor, depth-1, False)
                 bestVal = max(bestVal,value)
 
             return bestVal
@@ -220,7 +220,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 successors.append(node.generateSuccessor(1, action))
 
             for successor in successors:
-                value = minimax(successor, depth - 1, True)
+                value = minimax(successor, depth-1, True)
                 bestVal = min(bestVal, value)
             return bestVal
 
