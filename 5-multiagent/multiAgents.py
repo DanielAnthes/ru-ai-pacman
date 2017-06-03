@@ -235,6 +235,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
             bestUtility = utility
             bestAction = action
 
+    print bestUtility
     return bestAction
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
@@ -257,7 +258,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             return self.evaluationFunction(node)
 
         elif maxNode:
-            val = -99999
+            #a = -99999
             #generate Successors:
             legalActions = node.getLegalPacmanActions()
             successors = []
@@ -265,14 +266,14 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 successors.append(node.generatePacmanSuccessor(action))
 
             for successor in successors:
-                val = max(val, alphabeta(successor, a, b, depth-1, False))
-                a = max(a,val)
+                a = max(a, alphabeta(successor, a, b, depth-1, False))
                 if b <= a:
-                    break
-            return val
+                    return b
+                    #break
+            return a
 
         else:
-            val = 99999
+            #b = 99999
 
             # generate Successors:
             legalActions = node.getLegalPacmanActions()
@@ -281,11 +282,11 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 successors.append(node.generatePacmanSuccessor(action))
 
             for successor in successors:
-                val = min(val, alphabeta(successor, a, b, depth-1, True))
-                b = min(b, val)
+                b = min(b, alphabeta(successor, a, b, depth-1, True))
                 if b <= a:
-                    break
-            return val
+                    return a
+                    #break
+            return b
 
     legalActions = gameState.getLegalPacmanActions()
     bestAction = None
@@ -297,7 +298,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         if utility > bestUtility:
             bestUtility = utility
             bestAction = action
-
+    print(bestUtility)
     return bestAction
 
 class MultiAlphaBetaAgent(MultiAgentSearchAgent):
