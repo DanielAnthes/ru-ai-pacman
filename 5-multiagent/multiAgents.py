@@ -235,7 +235,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
             bestUtility = utility
             bestAction = action
 
-    print bestUtility
+    print (bestUtility)
     return bestAction
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
