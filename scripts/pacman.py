@@ -712,8 +712,8 @@ def runGames(layout, pacman, ghosts, display, numGames, record,
             f.close()
 
     if (numGames - numTraining) > 0:
-        scores = [game.state.getScore() for game2 in games]
-        wins = [game.state.isWin() for game2 in games]
+        scores = [game.state.getScore() for game in games]
+        wins = [game.state.isWin() for game in games]
         winRate = wins.count(True) / float(len(wins))
         print(('Average Score:', sum(scores) / float(len(scores))))
         print(('Scores:       ', ', '.join([str(score) for score in scores])))
