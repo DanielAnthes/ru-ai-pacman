@@ -11,3 +11,5 @@ python run.py -l smallClassic -p MinimaxAgent -a evalFn=better -q -n 10 -k 1
 
 
  -p ReflexAgent -l testClassic -n 100 -q
+-p MinimaxAgent -l trappedClassic -a depth=4 -k 1
+-p MinimaxAgent -l minimaxClassic -a depth=4 -k 1 -n 100

@@ -190,59 +190,52 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns the total number of agents in the game
     """
 
-
-    def maxOnFirstIndex(t1,t2):
-        if t1[0] > t2[0]:
-            return t1
-        else:
-            return t2
-
-    def minOnFirstIndex(t1, t2):
-        if t1[0] < t2[0]:
-            return t1
-        else:
-            return t2
-
-    #assuming the algorithm will never initially be called in a final state or with depth 0, in this case the algorithm will return None
-    def minimax(node, depth, pacmansturn, savedAction):
+    def minimax(node, depth, pacmansturn):
         if node.isWin() or node.isLose():
             terminal = True
         else:
             terminal = False
 
         if depth == 0 or terminal:
-            return (self.evaluationFunction(node), savedAction)
+            return self.evaluationFunction(node)
 
         if pacmansturn:
-            bestVal = (-99999, None)
+            bestVal = -99999
             legalActions = node.getLegalPacmanActions()
             successors = []
             for action in legalActions:
-                successors.append((node.generatePacmanSuccessor(action), action))
+                successors.append(node.generatePacmanSuccessor(action))
 
-            for successor, action in successors:
-                if savedAction == None:
-                    value = minimax(successor, depth, False, action)
-                else:
-                    value = minimax(successor, depth, False, savedAction)
-                bestVal = maxOnFirstIndex(bestVal,value)
+            for successor in successors:
+                value = minimax(successor, depth, False)
+                bestVal = max(bestVal,value)
 
             return bestVal
 
         else:
-            bestVal = (99999, None)
+            bestVal = 99999
             legalActions = node.getLegalActions(1)
             successors = []
             for action in legalActions:
-                successors.append((node.generateSuccessor(1, action), savedAction))
+                successors.append(node.generateSuccessor(1, action))
 
-            for successor, action in successors:
-                value = minimax(successor, depth - 1, True, savedAction)
-                bestVal = minOnFirstIndex(bestVal, value)
+            for successor in successors:
+                value = minimax(successor, depth - 1, True)
+                bestVal = min(bestVal, value)
             return bestVal
 
-    dir = (minimax(gameState, self.depth, True, None))[1]
-    return dir
+    legalActions = gameState.getLegalPacmanActions()
+    bestAction = None
+    bestUtility = -99999
+
+    for action in legalActions:
+        successor = gameState.generatePacmanSuccessor(action)
+        utility = minimax(successor, self.depth, False)
+        if utility > bestUtility:
+            bestUtility = utility
+            bestAction = action
+
+    return bestAction
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
   """
@@ -253,8 +246,59 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     """
       Returns the minimax action using self.depth and self.evaluationFunction
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    #using pseudocode for alpha beta with cutoff depth from wikipedia
+    def alphabeta(node, a, b, depth, maxNode):
+        if node.isWin() or node.isLose():
+            terminal = True
+        else:
+            terminal = False
+
+        if depth == 0 or terminal:
+            return self.evaluationFunction(node)
+
+        elif maxNode:
+            val = -99999
+            #generate Successors:
+            legalActions = node.getLegalPacmanActions()
+            successors = []
+            for action in legalActions:
+                successors.append(node.generatePacmanSuccessor(action))
+
+            for successor in successors:
+                val = max(val, alphabeta(successor, a, b, depth-1, False))
+                a = max(a,val)
+                if b <= a:
+                    break
+            return val
+
+        else:
+            val = 99999
+
+            # generate Successors:
+            legalActions = node.getLegalPacmanActions()
+            successors = []
+            for action in legalActions:
+                successors.append(node.generatePacmanSuccessor(action))
+
+            for successor in successors:
+                val = min(val, alphabeta(successor, a, b, depth-1, True))
+                b = min(b, val)
+                if b <= a:
+                    break
+            return val
+
+    legalActions = gameState.getLegalPacmanActions()
+    bestAction = None
+    bestUtility = -99999
+
+    for action in legalActions:
+        successor = gameState.generatePacmanSuccessor(action)
+        utility = alphabeta(successor, -99999, 99999, self.depth, False)
+        if utility > bestUtility:
+            bestUtility = utility
+            bestAction = action
+
+    return bestAction
 
 class MultiAlphaBetaAgent(MultiAgentSearchAgent):
   """
