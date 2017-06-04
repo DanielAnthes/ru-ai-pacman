@@ -215,17 +215,17 @@ class MinimaxAgent(MultiAgentSearchAgent):
             return bestVal
 
         else:
-            bestVal = 99999
-            legalActions = node.getLegalActions(1)
-            successors = []
+            bestGhostVal = 99999
+            legalGhostActions = node.getLegalActions(1)
+            ghostSuccessors = []
             print('Ghost')
-            for action in legalActions:
-                successors.append(node.generateSuccessor(1, action))
+            for action in legalGhostActions:
+                ghostSuccessors.append(node.generateSuccessor(1, action))
 
-            for successor in successors:
+            for successor in ghostSuccessors:
                 value = minimax(successor, depth-1, True)
-                bestVal = min(bestVal, value)
-            return bestVal
+                bestGhostVal = min(bestGhostVal, value)
+            return bestGhostVal
 
     legalActions = gameState.getLegalPacmanActions()
     bestAction = None
@@ -265,6 +265,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             return self.evaluationFunction(node)
 
         elif maxNode:
+            print("pacman")
             #a = -99999
             #generate Successors:
             legalActions = node.getLegalPacmanActions()
@@ -280,6 +281,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             return a
 
         else:
+            print("ghost")
             #b = 99999
 
             # generate Successors:
