@@ -59,7 +59,17 @@ class CompetitionAgent(Agent):
     self.distancer = distanceCalculator.Distancer(gameState.data.layout)
     
     # uncomment this line to use maze-distances (instead of manhatten distances as default.)
-    # self.distancer.getMazeDistances()
+    self.distancer.getMazeDistances()
+
+    def findKeyPositions():
+      # TODO     implement a function that returns all crossroads and dead ends
+      return 0
+
+
+    self.crossroads, self.deadends = findKeyPositions()
+
+
+
     
     import __main__
     if '_display' in dir(__main__):
