@@ -1,5 +1,9 @@
 ## Topic 6: Pacman Survival Contest!
 
+### IMPORTANT NOTE: 
+PLEASE DO AT LEAST ASSIGNMENT 1 OF THE MULTI-AGENT TOPIC (Ch.5) FIRST,
+AND HAND IT IN FOR FEEDBACK. YOU DO NEED THAT PRACTICE FOR THE CONTEST!
+
 ### Introduction
 
 The course contest involves a single-player survival-horror style

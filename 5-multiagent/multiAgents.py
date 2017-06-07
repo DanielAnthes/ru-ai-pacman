@@ -1,3 +1,7 @@
+#Edwin Wenink s4156072
+#Daniel Anthes s4767799
+
+
 # multiAgents.py
 # --------------
 # Licensing Information: Please do not distribute or publish solutions to this
@@ -208,7 +212,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 successors.append(node.generatePacmanSuccessor(action))
 
             for successor in successors:
-                # Changed this to depth-1!
+
                 value = minimax(successor, depth-1, False)
                 bestVal = max(bestVal,value)
 
@@ -234,8 +238,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
     for action in legalActions:
         successor = gameState.generatePacmanSuccessor(action)
 
-        # Hey Dan, note how it's NEVER PACMAN's turn. Couldnt find yet what the problem is.
-        # Note however how calling minimax below does give Pacman a turn when you call it with TRUE
 
         utility = minimax(successor, self.depth, False)
         if utility >= bestUtility:
@@ -266,7 +268,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
         elif maxNode:
             print("pacman")
-            #a = -99999
+
             #generate Successors:
             legalActions = node.getLegalPacmanActions()
             successors = []
@@ -282,7 +284,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
         else:
             print("ghost")
-            #b = 99999
+
 
             # generate Successors:
             legalActions = node.getLegalPacmanActions()
@@ -294,7 +296,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 b = min(b, alphabeta(successor, a, b, depth-1, True))
                 if b <= a:
                     return a
-                    #break
+
             return b
 
     legalActions = gameState.getLegalPacmanActions()
