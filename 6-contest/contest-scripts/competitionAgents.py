@@ -70,7 +70,7 @@ class CompetitionAgent(Agent):
 
 
 
-    
+
     import __main__
     if '_display' in dir(__main__):
       self.display = __main__._display
