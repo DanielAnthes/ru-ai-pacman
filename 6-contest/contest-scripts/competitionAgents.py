@@ -57,13 +57,48 @@ class CompetitionAgent(Agent):
     self.distancer.getDistance(p1, p2)
     """
     self.distancer = distanceCalculator.Distancer(gameState.data.layout)
+
+
     
     # uncomment this line to use maze-distances (instead of manhatten distances as default.)
     self.distancer.getMazeDistances()
+    print("calculated distances")
+
+    def surroundingWalls(xpos, ypos):
+      numberOfWalls = 0
+      for x in range(3):
+        for y in range(3):
+          if gameState.getWalls()[xpos - x + 1][ypos - y + 1] and (x - 1 == 0 or y - 1 == 0):
+            numberOfWalls += 1
+      return numberOfWalls
 
     def findKeyPositions():
       # TODO     implement a function that returns all crossroads and dead ends
-      return 0
+      walls = gameState.getWalls()
+
+      #initialize deadends and crossroads with False for every position
+      deadends = []
+
+      for x in range(len(walls)):
+        col = []
+        for y in range(len(walls[0])):
+          col.append(False)
+        deadends.append(col)
+
+      crossroads = list(deadends)
+
+
+      #in one pass over the map calculate the number of walls next to each position and update crossroads and deadends
+      for x in range(len(walls)):
+        for y in range(len(walls[0])):
+          if surroundingWalls(x,y) > 2:
+            deadends[x][y] = True
+          elif surroundingWalls(x,y) < 2:
+            crossroads[x][y] = True
+            #add x,y to list of crossroads
+
+
+      return crossroads, deadends
 
 
     self.crossroads, self.deadends = findKeyPositions()
@@ -79,6 +114,8 @@ class CompetitionAgent(Agent):
   #################
   # Action Choice #
   #################
+
+
 
   def getAction(self, gameState):
     """
