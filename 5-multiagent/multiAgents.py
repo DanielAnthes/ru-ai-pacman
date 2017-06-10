@@ -203,7 +203,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
             bestVal = -99999
             legalActions = node.getLegalPacmanActions()
             successors = []
-            print('Pacman')
+            #print('Pacman')
             for action in legalActions:
                 successors.append(node.generatePacmanSuccessor(action))
 
@@ -218,7 +218,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
             bestGhostVal = 99999
             legalGhostActions = node.getLegalActions(1)
             ghostSuccessors = []
-            print('Ghost')
+            #print('Ghost')
             for action in legalGhostActions:
                 ghostSuccessors.append(node.generateSuccessor(1, action))
 
