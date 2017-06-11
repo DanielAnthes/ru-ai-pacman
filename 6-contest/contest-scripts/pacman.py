@@ -319,8 +319,8 @@ class ClassicGameRules:
     return 900  # Move limits should prevent this from ever happening
 
   def getMaxStartupTime(self, agentIndex):
-    return 15 # 15 seconds for registerInitialState
-
+    #return 15 # 15 seconds for registerInitialState
+    return 999999
   def getMoveWarningTime(self, agentIndex):
     return 1  # One second per move
     

@@ -58,51 +58,71 @@ class CompetitionAgent(Agent):
         """
         self.distancer = distanceCalculator.Distancer(gameState.data.layout)
 
-        # uncomment this line to use maze-distances (instead of manhatten distances as default.)
+        # uncomment this line to use maze-distances (instead of manhattan distances as default.)
         self.distancer.getMazeDistances()
         print("calculated distances")
 
-        def surroundingWalls(xpos, ypos):
+        #TODO rewrite this function, it's ugly
+        def surroundingWalls(xpos, ypos, width, height):
+            walls = gameState.getWalls()
             numberOfWalls = 0
+            #if coordinates belong to point in the border return immediately
+            if xpos == 0 or xpos == width or ypos == 0 or ypos == height:
+                return 999
+            else:
+                if walls[xpos][ypos-1] == True:
+                    numberOfWalls+=1
 
-            for x in range(3):
-                for y in range(3):
-                    if gameState.getWalls()[xpos - x + 1][ypos - y + 1] and (
-                                x - 1 == 0 or y - 1 == 0):  # Why did you add the second condition?
-                        numberOfWalls += 1
-            return numberOfWalls
+                if walls[xpos][ypos+1] == True:
+                    numberOfWalls+=1
+
+                if walls[xpos+1][ypos] == True:
+                    numberOfWalls += 1
+
+                if walls[xpos-1][ypos] == True:
+                    numberOfWalls+=1
+
+                return numberOfWalls
+
 
         def findKeyPositions():
-            # TODO     implement a function that returns all crossroads and dead ends
             walls = gameState.getWalls()
-
+            wallgridHeight = walls.height
+            wallgridWidth = walls.width
             # initialize deadends and crossroads with False for every position
             deadends = []
-            print("THIS CODE IS STILL REACHED")
+            crossroads = []
 
-            for x in range(len(walls)): # THIS NEVER EVALUATES CORRECTLY! IS IT POSSIBLE THAT THE GRID IS NOT FILLED CORRECTLY?
-                print("this code is not reached!!")
-                col = []
-                for y in range(len(walls[0])):
-                    col.append(False)
-                deadends.append(col)
+            for x in range(wallgridWidth): # THIS NEVER EVALUATES CORRECTLY! IS IT POSSIBLE THAT THE GRID IS NOT FILLED CORRECTLY? X is still not incremented, ever
+                deadendscol = []
+                crossroadscol = []
+                for y in range(wallgridHeight):
+                    numberOfWalls = surroundingWalls(x,y, wallgridWidth,wallgridHeight)
+                    if numberOfWalls > 2:
+                        deadendscol.append(True)
+                    else:
+                        deadendscol.append(False)
+                    if numberOfWalls < 2:
+                        crossroadscol.append(True)
+                    else:
+                        crossroadscol.append(False)
 
-            crossroads = list(deadends)  # Why list?
-
-            # TODO  Hey Dan, this part of the code is never reached
+                deadends.append(deadendscol)
+                crossroads.append(crossroadscol)
 
             # in one pass over the map calculate the number of walls next to each position and update crossroads and deadends
-            for x in range(len(walls)):
-                for y in range(len(walls[0])):
-                    if surroundingWalls(x, y) < 2:
-                        deadends[x][y] = True
-                    elif surroundingWalls(x, y) > 2:  # you reversed the conditions
-                        crossroads[x][y] = True
+            #for x in range(wallgridWidth):
+            #    for y in range(wallgridHeight):
+            #        if surroundingWalls(x, y) < 2:
+            #            deadends[x][y] = True
+            #        elif surroundingWalls(x, y) > 2:  # you reversed the conditions
+            #            crossroads[x][y] = True
                         # add x,y to list of crossroads
-
+            print("initial calculations completed")
             return crossroads, deadends
 
         self.crossroads, self.deadends = findKeyPositions()
+        print("print some stuff so I can set a breakpoint here")
 
         import __main__
         if '_display' in dir(__main__):
@@ -207,6 +227,8 @@ class TimeoutAgent(Agent):
         return random.choice(state.getLegalActions(self.index))
 
 
+
+###TODO Change Back max startup time in pacman.py, currently set to infinity for testing
 class MyPacmanAgent(CompetitionAgent):
     """
     This is going to be your brilliant competition agent.
