@@ -67,7 +67,7 @@ class CompetitionAgent(Agent):
             walls = gameState.getWalls()
             numberOfWalls = 0
             #if coordinates belong to point in the border return immediately
-            if xpos == 0 or xpos == width or ypos == 0 or ypos == height:
+            if xpos == 0 or xpos == width-1 or ypos == 0 or ypos == height-1:
                 return 999
             else:
                 if walls[xpos][ypos-1] == True:
@@ -93,10 +93,12 @@ class CompetitionAgent(Agent):
             deadends = []
             crossroads = []
 
-            for x in range(wallgridWidth): # THIS NEVER EVALUATES CORRECTLY! IS IT POSSIBLE THAT THE GRID IS NOT FILLED CORRECTLY? X is still not incremented, ever
+            for x in range(wallgridWidth): # THIS NEVER EVALUATES CORRECTLY! IS IT POSSIBLE THAT THE GRID IS NOT FILLED CORRECTLY? X is still not incremented correctly, only increments once
+                print(x)
                 deadendscol = []
                 crossroadscol = []
                 for y in range(wallgridHeight):
+                    print(y)
                     numberOfWalls = surroundingWalls(x,y, wallgridWidth,wallgridHeight)
                     if numberOfWalls > 2:
                         deadendscol.append(True)
