@@ -230,6 +230,15 @@ class TimeoutAgent(Agent):
 
 
 
+
+
+
+
+
+
+
+###TODO OUR AGENT###
+
 ###TODO Change Back max startup time in pacman.py, currently set to infinity for testing
 class MyPacmanAgent(CompetitionAgent):
     """
@@ -247,7 +256,7 @@ class MyPacmanAgent(CompetitionAgent):
         some Directions.X for some X in the set {North, South, West, East, Stop}. 
         """
         self.depth = 2
-        a = self.minimax(gameState, True, self.depth)
+        a = self.minimax(gameState, True, self.depth, gameState)
         return a[1]
 
     def isTrapped(self, currentGameState):
@@ -292,16 +301,16 @@ class MyPacmanAgent(CompetitionAgent):
                 return successor
         return successor
 
-    def minimax(self, gameState, maxi, depth):
+    def minimax(self, gameState, maxi, depth, initialGameState):
         if self.isTerminal(gameState) or depth == 0:
-            return (self.evaluationFunction(gameState), Directions.STOP)
+            return (self.evaluationFunction(gameState, initialGameState), Directions.STOP)
 
         childeren = util.PriorityQueue()
         if maxi:
             actions = gameState.getLegalActions(0)
             for a in actions:
                 succsorGamestate = gameState.generateSuccessor(0, a)
-                child = self.minimax(succsorGamestate, not maxi, depth - 1)
+                child = self.minimax(succsorGamestate, not maxi, depth - 1, initialGameState)
                 childeren.push((child[0], a), -child[0])
         if not maxi:
             actionslists = []
@@ -313,11 +322,92 @@ class MyPacmanAgent(CompetitionAgent):
             actions = self.getSenarios(actionslists)
             for a in actions:
                 succsorGamestate = self.getSuccessor(gameState, a)
-                child = self.minimax(succsorGamestate, not maxi, depth)
+                child = self.minimax(succsorGamestate, not maxi, depth, initialGameState)
                 childeren.push((child[0], a), child[0])
         return childeren.pop()
 
-    def evaluationFunction(self, state):
+
+
+
+
+
+
+
+    def evaluationFunction(self, state, initialState):
+        currentGameState = state
+        Pos = currentGameState.getPacmanPosition()
+        Food = currentGameState.getFood()
+
+        newFoodCount = currentGameState.getNumFood()
+        oldFoodCount = initialState.getNumFood()
+
+
+        GhostStates = currentGameState.getGhostStates()
+        ghostDistance = [ self.distancer.getDistance(Pos, ghost.configuration.pos) for ghost in GhostStates if
+                         ghost.scaredTimer == 0]
+        scaredDistance = [ self.distancer.getDistance(Pos, ghost.configuration.pos) for ghost in GhostStates if
+                          ghost.scaredTimer != 0]
+
+        if ghostDistance:
+            sumOfGhosts = sum(ghostDistance)
+        else:
+            sumOfGhosts = 0
+
+        if scaredDistance:
+            sumOfScared = sum(scaredDistance)
+        else:
+            sumOfScared = 0
+
+        ghostDistances = sumOfGhosts - sumOfScared
+
+
+        #nearbyGhost=
+        #for ghost in GhostStates:
+        #    if dist(pos,ghost) < nearbyGhost
+        #        nearbyGhos=ghost
+
+        #TODO add cumulative dist to all ghosts
+
+        capsuleDist = [ self.distancer.getDistance(Pos, capsule) for capsule in currentGameState.getCapsules()]
+        foodlist = []
+        for h in range(Food.height):
+            for w in range(Food.width):
+                if Food[w][h]:
+                    foodlist.append((w, h))
+        foodDist = [ self.distancer.getDistance(Pos, food) for food in foodlist]
+
+        if foodDist:
+            furthestFood = max(foodDist)
+        else:
+            furthestFood = 0
+
+        if foodDist:
+            closestFood = min(foodDist)
+        else:
+            closestFood = 0
+
+        if ghostDistance:
+            closestGhost = min(ghostDistance)
+            if closestGhost < 2:
+                closestGhost = -float("Inf")
+        else:
+            closestGhost = 99999
+        if scaredDistance:
+            closestScaredGhost = min(scaredDistance)
+        else:
+            closestScaredGhost = 0
+
+
+
+
+
+        foodValue = (oldFoodCount - newFoodCount) * 5000
+
+        return -closestFood*10 + closestGhost + furthestFood*0.1 + foodValue*100 + ghostDistances*2
+
+
+
+    def evaluationFunctionBaseline(self, state):
         """
         A very poor evsaluation function. You can do better!
         """

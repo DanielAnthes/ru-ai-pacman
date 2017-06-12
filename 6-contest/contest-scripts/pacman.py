@@ -320,7 +320,7 @@ class ClassicGameRules:
 
   def getMaxStartupTime(self, agentIndex):
     #return 15 # 15 seconds for registerInitialState
-    return 999999
+    return 15
   def getMoveWarningTime(self, agentIndex):
     return 1  # One second per move
     
