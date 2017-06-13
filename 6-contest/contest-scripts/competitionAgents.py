@@ -94,11 +94,9 @@ class CompetitionAgent(Agent):
             crossroads = []
 
             for x in range(wallgridWidth): # THIS NEVER EVALUATES CORRECTLY! IS IT POSSIBLE THAT THE GRID IS NOT FILLED CORRECTLY? X is still not incremented correctly, only increments once
-                print(x)
                 deadendscol = []
                 crossroadscol = []
                 for y in range(wallgridHeight):
-                    print(y)
                     numberOfWalls = surroundingWalls(x,y, wallgridWidth,wallgridHeight)
                     if numberOfWalls > 2:
                         deadendscol.append(True)
@@ -124,7 +122,6 @@ class CompetitionAgent(Agent):
             return crossroads, deadends
 
         self.crossroads, self.deadends = findKeyPositions()
-        print("print some stuff so I can set a breakpoint here")
 
         import __main__
         if '_display' in dir(__main__):
@@ -341,6 +338,9 @@ class MyPacmanAgent(CompetitionAgent):
         newFoodCount = currentGameState.getNumFood()
         oldFoodCount = initialState.getNumFood()
 
+        oldCapsuleCount = len(initialState.getCapsules())
+        newCapsuleCount = len(currentGameState.getCapsules())
+
 
         GhostStates = currentGameState.getGhostStates()
         ghostDistance = [ self.distancer.getDistance(Pos, ghost.configuration.pos) for ghost in GhostStates if
@@ -348,10 +348,30 @@ class MyPacmanAgent(CompetitionAgent):
         scaredDistance = [ self.distancer.getDistance(Pos, ghost.configuration.pos) for ghost in GhostStates if
                           ghost.scaredTimer != 0]
 
+        oldGhostStates = initialState.getGhostStates()
+        oldGhostDistance = [self.distancer.getDistance(Pos, ghost.configuration.pos) for ghost in oldGhostStates if
+                         ghost.scaredTimer == 0]
+        oldScaredDistance = [self.distancer.getDistance(Pos, ghost.configuration.pos) for ghost in oldGhostStates if
+                          ghost.scaredTimer != 0]
+
+        amountOfGhosts = len(ghostDistance)
+        amountOfScaredGhosts = len(scaredDistance)
+
+        oldAmountOfGhosts = len(oldGhostDistance)
+        oldAmountOfScaredGhosts = len(oldScaredDistance)
+
+        #this results in high evaluations when the scared timer runs out, not a problem because it will be true for all possible successors at that point
+        #TODO make less ugly
+        numberOfEatenGhosts = (oldAmountOfScaredGhosts - amountOfScaredGhosts)
+        if numberOfEatenGhosts > 0:
+            numberOfEatenGhosts = float("Inf")
+        #TODO dont go for capsules if ghost in path
+
+
         if ghostDistance:
             sumOfGhosts = sum(ghostDistance)
         else:
-            sumOfGhosts = 0
+            sumOfGhosts = 99999
 
         if scaredDistance:
             sumOfScared = sum(scaredDistance)
@@ -359,6 +379,15 @@ class MyPacmanAgent(CompetitionAgent):
             sumOfScared = 0
 
         ghostDistances = sumOfGhosts - sumOfScared
+
+
+        #evaluate whether we ate a capsule
+        if not ((oldCapsuleCount - newCapsuleCount) == 0):
+            ateCapsule = True
+        else:
+            ateCapsule = False
+
+        huntGhosts = 0
 
 
         #nearbyGhost=
@@ -388,12 +417,15 @@ class MyPacmanAgent(CompetitionAgent):
 
         if ghostDistance:
             closestGhost = min(ghostDistance)
+
             if closestGhost < 2:
                 closestGhost = -float("Inf")
         else:
             closestGhost = 99999
         if scaredDistance:
             closestScaredGhost = min(scaredDistance)
+            if (closestScaredGhost < 8) and ateCapsule:
+                huntGhosts = 500000
         else:
             closestScaredGhost = 0
 
@@ -401,9 +433,12 @@ class MyPacmanAgent(CompetitionAgent):
 
 
 
+
+
+
         foodValue = (oldFoodCount - newFoodCount) * 5000
 
-        return -closestFood*10 + closestGhost + furthestFood*0.1 + foodValue*100 + ghostDistances*2
+        return -closestFood*10 + closestGhost + furthestFood*0.1 + foodValue + ghostDistances*2 + huntGhosts + numberOfEatenGhosts
 
 
 
