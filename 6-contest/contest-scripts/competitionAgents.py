@@ -354,6 +354,13 @@ class MyPacmanAgent(CompetitionAgent):
         oldScaredDistance = [self.distancer.getDistance(Pos, ghost.configuration.pos) for ghost in oldGhostStates if
                           ghost.scaredTimer != 0]
 
+
+        #TODO Finish Crossroad. Check for distance to closestGhost and adjust behaviour.
+        if self.crossroads[Pos[0]][Pos[1]]:
+            print("Crossroad")
+        else:
+            print("No crossroad")
+
         amountOfGhosts = len(ghostDistance)
         amountOfScaredGhosts = len(scaredDistance)
 
@@ -366,7 +373,6 @@ class MyPacmanAgent(CompetitionAgent):
         if numberOfEatenGhosts > 0:
             numberOfEatenGhosts = float("Inf")
         #TODO dont go for capsules if ghost in path
-
 
         if ghostDistance:
             sumOfGhosts = sum(ghostDistance)
@@ -429,16 +435,19 @@ class MyPacmanAgent(CompetitionAgent):
         else:
             closestScaredGhost = 0
 
-
-
+        #Code from baseline agent. Seems pretty useless but hey, why not?
+        if currentGameState.isLose():
+            return -float("Inf")
+        #if currentGameState.isWin():
+        #   return 100000000
 
 
 
 
 
         foodValue = (oldFoodCount - newFoodCount) * 5000
-
-        return -closestFood*10 + closestGhost + furthestFood*0.1 + foodValue + ghostDistances*2 + huntGhosts + numberOfEatenGhosts
+        #TODO @win: I added the current gameScore to the eval function. Discuss if this is valuable or not
+        return -closestFood*10 + closestGhost + furthestFood*0.1 + foodValue + ghostDistances*2 + huntGhosts + numberOfEatenGhosts + currentGameState.getScore()
 
 
 
