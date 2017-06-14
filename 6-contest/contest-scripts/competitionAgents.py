@@ -345,6 +345,7 @@ class MyPacmanAgent(CompetitionAgent):
     def evaluationFunction(self, state, initialState):
         currentGameState = state
         Pos = currentGameState.getPacmanPosition()
+        oldPos = initialState.getPacmanPosition()
         Food = currentGameState.getFood()
 
         newFoodCount = currentGameState.getNumFood()
@@ -366,7 +367,20 @@ class MyPacmanAgent(CompetitionAgent):
         oldScaredDistance = [self.distancer.getDistance(Pos, ghost.configuration.pos) for ghost in oldGhostStates if
                           ghost.scaredTimer != 0]
 
-        crossRoadDistance =[self.distancer.getDistance(Pos, crossroad) for crossroad in self.crossroadslist]
+        crossRoadDistance =[(self.distancer.getDistance(Pos, crossroad),crossroad) for crossroad in self.crossroadslist]
+        crossRoadDistance.sort(key=lambda tup: tup[0])
+
+
+
+
+        if oldPos in self.crossroadslist:
+            onCrossroad = True
+        else:
+            onCrossroad = False
+
+        if onCrossroad:
+            nextCrossroad = crossRoadDistance[1][1]#coordinates of next crossroad
+
 
 
 
