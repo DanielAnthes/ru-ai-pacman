@@ -93,6 +93,8 @@ class CompetitionAgent(Agent):
             deadends = []
             crossroads = []
 
+            crossroadlist = []
+
             for x in range(wallgridWidth): # THIS NEVER EVALUATES CORRECTLY! IS IT POSSIBLE THAT THE GRID IS NOT FILLED CORRECTLY? X is still not incremented correctly, only increments once
                 deadendscol = []
                 crossroadscol = []
@@ -100,10 +102,13 @@ class CompetitionAgent(Agent):
                     numberOfWalls = surroundingWalls(x,y, wallgridWidth,wallgridHeight)
                     if numberOfWalls > 2:
                         deadendscol.append(True)
+
                     else:
                         deadendscol.append(False)
                     if numberOfWalls < 2:
                         crossroadscol.append(True)
+                        if not walls[x][y]:
+                            crossroadlist.append((x,y))
                     else:
                         crossroadscol.append(False)
 
@@ -119,9 +124,9 @@ class CompetitionAgent(Agent):
             #            crossroads[x][y] = True
                         # add x,y to list of crossroads
             print("initial calculations completed")
-            return crossroads, deadends
+            return crossroads, deadends, crossroadlist
 
-        self.crossroads, self.deadends = findKeyPositions()
+        self.crossroads, self.deadends, self.crossroadslist = findKeyPositions()
 
         import __main__
         if '_display' in dir(__main__):
@@ -250,9 +255,16 @@ class MyPacmanAgent(CompetitionAgent):
         """
         getAction chooses among the best options according to the evaluation function.
         Just like in the previous projects, getAction takes a GameState and returns
-        some Directions.X for some X in the set {North, South, West, East, Stop}. 
+        some Directions.X for some X in the set {North, South, West, East, Stop}.
         """
-        self.depth = 2
+
+
+
+        if len(gameState.getGhostStates())>3:
+            self.depth = 2
+        else:
+            self.depth = 1
+
         a = self.minimax(gameState, True, self.depth, gameState)
         return a[1]
 
@@ -354,12 +366,11 @@ class MyPacmanAgent(CompetitionAgent):
         oldScaredDistance = [self.distancer.getDistance(Pos, ghost.configuration.pos) for ghost in oldGhostStates if
                           ghost.scaredTimer != 0]
 
+        crossRoadDistance =[self.distancer.getDistance(Pos, crossroad) for crossroad in self.crossroadslist]
 
-        #TODO Finish Crossroad. Check for distance to closestGhost and adjust behaviour.
-        if self.crossroads[Pos[0]][Pos[1]]:
-            print("Crossroad")
-        else:
-            print("No crossroad")
+
+
+
 
         amountOfGhosts = len(ghostDistance)
         amountOfScaredGhosts = len(scaredDistance)
@@ -438,8 +449,6 @@ class MyPacmanAgent(CompetitionAgent):
         #Code from baseline agent. Seems pretty useless but hey, why not?
         if currentGameState.isLose():
             return -float("Inf")
-        #if currentGameState.isWin():
-        #   return 100000000
 
 
 

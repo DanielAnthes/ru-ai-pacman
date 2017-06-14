@@ -322,10 +322,10 @@ class ClassicGameRules:
     #return 15 # 15 seconds for registerInitialState
     return 15
   def getMoveWarningTime(self, agentIndex):
-    return 1  # One second per move
+    return 9999  # One second per move
     
   def getMoveTimeout(self, agentIndex):
-    return 3  # Three seconds results in instant forfeit
+    return 9999  # Three seconds results in instant forfeit
 
   def getMaxTimeWarnings(self, agentIndex):
     return 2  # Third violation loses the game
