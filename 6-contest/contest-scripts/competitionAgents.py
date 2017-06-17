@@ -343,18 +343,28 @@ class MyPacmanAgent(CompetitionAgent):
 
 
     def evaluationFunction(self, state, initialState):
+
+
+
+        ###gather information for later use###
+
+        #game state, food, pacman position
         currentGameState = state
         Pos = currentGameState.getPacmanPosition()
         oldPos = initialState.getPacmanPosition()
         Food = currentGameState.getFood()
 
+        #amount of food in old + new game state
         newFoodCount = currentGameState.getNumFood()
         oldFoodCount = initialState.getNumFood()
 
+
+        #amount of capsules in old and new state
         oldCapsuleCount = len(initialState.getCapsules())
         newCapsuleCount = len(currentGameState.getCapsules())
 
 
+        #distances to ghosts and scared ghosts  in old and new states
         GhostStates = currentGameState.getGhostStates()
         ghostDistance = [ self.distancer.getDistance(Pos, ghost.configuration.pos) for ghost in GhostStates if
                          ghost.scaredTimer == 0]
@@ -367,42 +377,64 @@ class MyPacmanAgent(CompetitionAgent):
         oldScaredDistance = [self.distancer.getDistance(Pos, ghost.configuration.pos) for ghost in oldGhostStates if
                           ghost.scaredTimer != 0]
 
+
+        #distances to crossroads, sorted by increasing distance
         crossRoadDistance =[(self.distancer.getDistance(Pos, crossroad),crossroad) for crossroad in self.crossroadslist]
         crossRoadDistance.sort(key=lambda tup: tup[0])
 
 
-        if oldPos in self.crossroadslist:
-            onCrossroad = True
-        else:
-            onCrossroad = False
-
-        if onCrossroad:
-            nextCrossroad = crossRoadDistance[1][1]#coordinates of next crossroad
-
-
+        #amount of ghosts and scared ghosts
         amountOfGhosts = len(ghostDistance)
         amountOfScaredGhosts = len(scaredDistance)
 
         oldAmountOfGhosts = len(oldGhostDistance)
         oldAmountOfScaredGhosts = len(oldScaredDistance)
 
-        #this results in high evaluations when the scared timer runs out, not a problem because it will be true for all possible successors at that point
-        #TODO make less ugly
+
+
+        ###calculations###
+
+        #check if pacman currently is on a crossroad position
+        if oldPos in self.crossroadslist:
+            onCrossroad = True
+        else:
+            onCrossroad = False
+
+        #calculate distance to the next crossroad (excluding the one pacman is currently on)
+        if onCrossroad:
+            nextCrossroad = crossRoadDistance[1][1]
+
+        #ghosts eaten in this step
         numberOfEatenGhosts = (oldAmountOfScaredGhosts - amountOfScaredGhosts)
         if numberOfEatenGhosts > 0:
             numberOfEatenGhosts = float("Inf")
+
+
         #TODO dont go for capsules if ghost in path
 
+        #sum of distances to all ghosts
         if ghostDistance:
             sumOfGhosts = sum(ghostDistance)
         else:
             sumOfGhosts = 99999
 
+
+        #sum of distance to all scared ghosts and the closest scared ghost, if the closest scared ghost is closer than 10 steps closeScared is set to 1 and closestScared increases as pacman gets closer to the scared ghost
         if scaredDistance:
             sumOfScared = sum(scaredDistance)
+            closestScared = min(scaredDistance)
+            if closestScared < 10:
+                closeScared = 1
+                closestScared = 10 - closestScared
+            else:
+                closeScared = 0
         else:
             sumOfScared = 0
+            closeScared = 0
+            closestScared = 0
 
+
+        #value that evaluates states better if ghosts are far away and scared ghosts are close
         ghostDistances = sumOfGhosts - sumOfScared
 
 
@@ -422,7 +454,12 @@ class MyPacmanAgent(CompetitionAgent):
 
         #TODO add cumulative dist to all ghosts
 
+
+        #distances to capsules
         capsuleDist = [ self.distancer.getDistance(Pos, capsule) for capsule in currentGameState.getCapsules()]
+
+
+        #list of positions with food
         foodlist = []
         for h in range(Food.height):
             for w in range(Food.width):
@@ -430,16 +467,22 @@ class MyPacmanAgent(CompetitionAgent):
                     foodlist.append((w, h))
         foodDist = [ self.distancer.getDistance(Pos, food) for food in foodlist]
 
+
+        #calculate furthest distance to food
         if foodDist:
             furthestFood = max(foodDist)
         else:
             furthestFood = 0
 
+
+        #calculate closest food
         if foodDist:
             closestFood = min(foodDist)
         else:
             closestFood = 0
 
+
+        #closest ghost
         if ghostDistance:
             closestGhost = min(ghostDistance)
 
@@ -447,12 +490,14 @@ class MyPacmanAgent(CompetitionAgent):
                 closestGhost = -float("Inf")
         else:
             closestGhost = 99999
+
+        #if we can eat a capsule and ghosts are close, eat the capsule
         if scaredDistance:
             closestScaredGhost = min(scaredDistance)
             if (closestScaredGhost < 8) and ateCapsule:
                 huntGhosts = 500000
         else:
-            closestScaredGhost = 0
+            huntGhosts = 0
 
         # first setup for 'trapped' function. We could play around with
         # Ghostdistance
@@ -466,10 +511,11 @@ class MyPacmanAgent(CompetitionAgent):
         if currentGameState.isLose():
             return -float("Inf")
 
-        foodValue = (oldFoodCount - newFoodCount) * 5000
+        foodValue = (oldFoodCount - newFoodCount)
 
         #TODO @win: I added the current gameScore to the eval function. Discuss if this is valuable or not
-        return -closestFood*10 + closestGhost + furthestFood*0.1 + foodValue + ghostDistances*2 + huntGhosts + numberOfEatenGhosts + currentGameState.getScore() + trapped
+        return -closestFood*10 + closestGhost + furthestFood*0.1 + foodValue*5000 + ghostDistances*2 + huntGhosts + numberOfEatenGhosts + currentGameState.getScore() + trapped + closeScared*closestScared*5000
+
 
 
 
