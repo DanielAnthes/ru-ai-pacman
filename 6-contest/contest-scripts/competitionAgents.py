@@ -369,6 +369,8 @@ class MyPacmanAgent(CompetitionAgent):
         ghostDistance = [ self.distancer.getDistance(Pos, ghost.configuration.pos) for ghost in GhostStates if
                          ghost.scaredTimer == 0]
 
+        ghostPositions = [ghost.configuration.pos for ghost in GhostStates if ghost.scaredTimer == 0]
+
         scaredDistance = [ self.distancer.getDistance(Pos, ghost.configuration.pos) for ghost in GhostStates if
                           ghost.scaredTimer != 0]
 
@@ -392,9 +394,23 @@ class MyPacmanAgent(CompetitionAgent):
         oldAmountOfScaredGhosts = len(oldScaredDistance)
 
 
+        if scaredDistance:
+            closestScared = min(scaredDistance)
+        else:
+            closestScared = 999
+
+        if ghostDistance:
+            closestGhost = min(ghostDistance)
+        else:
+            closestGhost = 999
+
+
+
 
         ###calculations###
 
+
+        dangerousCorridor = 0
         #check if pacman currently is on a crossroad position
         if oldPos in self.crossroadslist:
             onCrossroad = True
@@ -402,8 +418,19 @@ class MyPacmanAgent(CompetitionAgent):
             onCrossroad = False
 
         #calculate distance to the next crossroad (excluding the one pacman is currently on)
+
         if onCrossroad:
+            ghosts = 0
             nextCrossroad = crossRoadDistance[1][1]
+            distMeCrossroad = self.distancer.getDistance(Pos, nextCrossroad)
+            for ghost in ghostPositions:
+                distMeGhost = self.distancer.getDistance(Pos, ghost)
+                distGhostCrossroad = self.distancer.getDistance(ghost, nextCrossroad)
+                if (distMeGhost + distGhostCrossroad) == distMeCrossroad:
+                    ghosts+=1
+            if ghosts > 0:
+                dangerousCorridor = 9000
+
 
         #ghosts eaten in this step
         numberOfEatenGhosts = (oldAmountOfScaredGhosts - amountOfScaredGhosts)
@@ -420,17 +447,20 @@ class MyPacmanAgent(CompetitionAgent):
             sumOfGhosts = 99999
 
 
+
+
+
+
         #sum of distance to all scared ghosts and the closest scared ghost, if the closest scared ghost is closer than 10 steps closeScared is set to 1 and closestScared increases as pacman gets closer to the scared ghost
         if scaredDistance:
             sumOfScared = sum(scaredDistance)
-            closestScared = min(scaredDistance)
-            if ghostDistance:
-                closestGhost = min(ghostDistance)
+
+
             if closestScared < 10:
                 closeScared = 1
                 closestScared = (10 - closestScared)*5000
                 #additional modifier if a ghost is dangerously close
-                if ghostDistance and closestGhost < 3:
+                if closestGhost < 3:
                     closestScared = closestScared - 40000
 
             else:
@@ -438,7 +468,6 @@ class MyPacmanAgent(CompetitionAgent):
         else:
             sumOfScared = 0
             closeScared = 0
-            closestScared = 0
 
 
         #value that evaluates states better if ghosts are far away and scared ghosts are close
@@ -521,7 +550,7 @@ class MyPacmanAgent(CompetitionAgent):
         foodValue = (oldFoodCount - newFoodCount)
 
         #TODO @win: I added the current gameScore to the eval function. Discuss if this is valuable or not
-        return -closestFood*10 + closestGhost + furthestFood*0.1 + foodValue*5000 + ghostDistances*2 + huntGhosts + numberOfEatenGhosts + currentGameState.getScore() + trapped + closeScared*closestScared
+        return -closestFood*10 + closestGhost + furthestFood*0.1 + foodValue*5000 + ghostDistances*2 + huntGhosts + numberOfEatenGhosts + currentGameState.getScore() + closeScared*closestScared - dangerousCorridor + trapped
 
 
 
