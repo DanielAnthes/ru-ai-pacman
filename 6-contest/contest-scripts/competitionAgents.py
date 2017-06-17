@@ -371,8 +371,6 @@ class MyPacmanAgent(CompetitionAgent):
         crossRoadDistance.sort(key=lambda tup: tup[0])
 
 
-
-
         if oldPos in self.crossroadslist:
             onCrossroad = True
         else:
@@ -380,10 +378,6 @@ class MyPacmanAgent(CompetitionAgent):
 
         if onCrossroad:
             nextCrossroad = crossRoadDistance[1][1]#coordinates of next crossroad
-
-
-
-
 
 
         amountOfGhosts = len(ghostDistance)
@@ -460,17 +454,22 @@ class MyPacmanAgent(CompetitionAgent):
         else:
             closestScaredGhost = 0
 
+        # first setup for 'trapped' function. We could play around with
+        # Ghostdistance
+        # the amount of food left for when you want pacman to be balsy (last pellet, last two?)
+        trapped=0
+        if (closestGhost<5) and (self.isTrapped(state)):
+                if not newFoodCount<3:
+                    trapped=-float("Inf")
+
         #Code from baseline agent. Seems pretty useless but hey, why not?
         if currentGameState.isLose():
             return -float("Inf")
 
-
-
-
-
         foodValue = (oldFoodCount - newFoodCount) * 5000
+
         #TODO @win: I added the current gameScore to the eval function. Discuss if this is valuable or not
-        return -closestFood*10 + closestGhost + furthestFood*0.1 + foodValue + ghostDistances*2 + huntGhosts + numberOfEatenGhosts + currentGameState.getScore()
+        return -closestFood*10 + closestGhost + furthestFood*0.1 + foodValue + ghostDistances*2 + huntGhosts + numberOfEatenGhosts + currentGameState.getScore() + trapped
 
 
 
