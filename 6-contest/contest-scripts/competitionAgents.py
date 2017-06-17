@@ -368,6 +368,7 @@ class MyPacmanAgent(CompetitionAgent):
         GhostStates = currentGameState.getGhostStates()
         ghostDistance = [ self.distancer.getDistance(Pos, ghost.configuration.pos) for ghost in GhostStates if
                          ghost.scaredTimer == 0]
+
         scaredDistance = [ self.distancer.getDistance(Pos, ghost.configuration.pos) for ghost in GhostStates if
                           ghost.scaredTimer != 0]
 
@@ -423,9 +424,15 @@ class MyPacmanAgent(CompetitionAgent):
         if scaredDistance:
             sumOfScared = sum(scaredDistance)
             closestScared = min(scaredDistance)
+            if ghostDistance:
+                closestGhost = min(ghostDistance)
             if closestScared < 10:
                 closeScared = 1
-                closestScared = 10 - closestScared
+                closestScared = (10 - closestScared)*5000
+                #additional modifier if a ghost is dangerously close
+                if ghostDistance and closestGhost < 3:
+                    closestScared = closestScared - 40000
+
             else:
                 closeScared = 0
         else:
@@ -514,7 +521,7 @@ class MyPacmanAgent(CompetitionAgent):
         foodValue = (oldFoodCount - newFoodCount)
 
         #TODO @win: I added the current gameScore to the eval function. Discuss if this is valuable or not
-        return -closestFood*10 + closestGhost + furthestFood*0.1 + foodValue*5000 + ghostDistances*2 + huntGhosts + numberOfEatenGhosts + currentGameState.getScore() + trapped + closeScared*closestScared*5000
+        return -closestFood*10 + closestGhost + furthestFood*0.1 + foodValue*5000 + ghostDistances*2 + huntGhosts + numberOfEatenGhosts + currentGameState.getScore() + trapped + closeScared*closestScared
 
 
 
