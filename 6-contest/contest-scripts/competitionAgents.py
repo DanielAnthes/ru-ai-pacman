@@ -560,11 +560,8 @@ class MyPacmanAgent(CompetitionAgent):
 
         foodValue = (oldFoodCount - newFoodCount)
 
-        #TODO @win: I added the current gameScore to the eval function. Discuss if this is valuable or not
-        return -closestFood*10 + closestGhost + furthestFood*0.1 + foodValue*5000 + ghostDistances*2 + huntGhosts + numberOfEatenGhosts + currentGameState.getScore() + closeScared*closestScared - dangerousCorridor + trapped + searchCapsule
-
-
-
+        #return -closestFood*10 + closestGhost + furthestFood*0.1 + foodValue*5000 + ghostDistances*2 + huntGhosts + numberOfEatenGhosts + currentGameState.getScore() + closeScared*closestScared - dangerousCorridor + trapped + searchCapsule
+        return -closestFood * 10 + closestGhost + foodValue * 5000 + ghostDistances * 2 + huntGhosts + numberOfEatenGhosts + currentGameState.getScore() + closeScared * closestScared - dangerousCorridor + trapped + searchCapsule
 
     def evaluationFunctionBaseline(self, state):
         """
