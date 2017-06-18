@@ -60,9 +60,8 @@ class CompetitionAgent(Agent):
 
         # uncomment this line to use maze-distances (instead of manhattan distances as default.)
         self.distancer.getMazeDistances()
-        print("calculated distances")
 
-        #TODO rewrite this function, it's ugly
+       # calculates for given coordinate the amount of surrounding walls
         def surroundingWalls(xpos, ypos, width, height):
             walls = gameState.getWalls()
             numberOfWalls = 0
@@ -84,7 +83,7 @@ class CompetitionAgent(Agent):
 
                 return numberOfWalls
 
-
+        #Finds key positions and stores them in two grids, one for deadends, one for crossroads
         def findKeyPositions():
             walls = gameState.getWalls()
             wallgridHeight = walls.height
@@ -114,16 +113,6 @@ class CompetitionAgent(Agent):
 
                 deadends.append(deadendscol)
                 crossroads.append(crossroadscol)
-
-            # in one pass over the map calculate the number of walls next to each position and update crossroads and deadends
-            #for x in range(wallgridWidth):
-            #    for y in range(wallgridHeight):
-            #        if surroundingWalls(x, y) < 2:
-            #            deadends[x][y] = True
-            #        elif surroundingWalls(x, y) > 2:  # you reversed the conditions
-            #            crossroads[x][y] = True
-                        # add x,y to list of crossroads
-            print("initial calculations completed")
             return crossroads, deadends, crossroadlist
 
         self.crossroads, self.deadends, self.crossroadslist = findKeyPositions()
@@ -231,17 +220,6 @@ class TimeoutAgent(Agent):
         return random.choice(state.getLegalActions(self.index))
 
 
-
-
-
-
-
-
-
-
-###TODO OUR AGENT###
-
-###TODO Change Back max startup time in pacman.py, currently set to infinity for testing
 class MyPacmanAgent(CompetitionAgent):
     """
     This is going to be your brilliant competition agent.
@@ -251,6 +229,7 @@ class MyPacmanAgent(CompetitionAgent):
     # The following functions have been declared for you,
     # but they don't do anything yet (getAction), or work very poorly (evaluationFunction)
 
+    # Hybrid agent layout
     def getAction(self, gameState):
         """
         getAction chooses among the best options according to the evaluation function.
@@ -333,16 +312,7 @@ class MyPacmanAgent(CompetitionAgent):
                 childeren.push((child[0], a), child[0])
         return childeren.pop()
 
-
-
-
-
-
-
-
     def evaluationFunction(self, state, initialState):
-
-
 
         ###gather information for later use###
 
@@ -356,7 +326,6 @@ class MyPacmanAgent(CompetitionAgent):
         newFoodCount = currentGameState.getNumFood()
         oldFoodCount = initialState.getNumFood()
 
-
         #amount of capsules in old and new state
         oldCapsuleCount = len(initialState.getCapsules())
         newCapsuleCount = len(currentGameState.getCapsules())
@@ -364,7 +333,6 @@ class MyPacmanAgent(CompetitionAgent):
         capsules = currentGameState.getCapsules()
         # distances to capsules
         capsuleDist = [self.distancer.getDistance(Pos, capsule) for capsule in currentGameState.getCapsules()]
-
 
         #distances to ghosts and scared ghosts  in old and new states
         GhostStates = currentGameState.getGhostStates()
@@ -382,19 +350,18 @@ class MyPacmanAgent(CompetitionAgent):
         oldScaredDistance = [self.distancer.getDistance(Pos, ghost.configuration.pos) for ghost in oldGhostStates if
                           ghost.scaredTimer != 0]
 
-
         #distances to crossroads, sorted by increasing distance
         crossRoadDistance =[(self.distancer.getDistance(Pos, crossroad),crossroad) for crossroad in self.crossroadslist]
         crossRoadDistance.sort(key=lambda tup: tup[0])
-
 
         #amount of ghosts and scared ghosts
         amountOfGhosts = len(ghostDistance)
         amountOfScaredGhosts = len(scaredDistance)
 
+        ###calculations###
+
         oldAmountOfGhosts = len(oldGhostDistance)
         oldAmountOfScaredGhosts = len(oldScaredDistance)
-
 
         if scaredDistance:
             closestScared = min(scaredDistance)
@@ -405,12 +372,6 @@ class MyPacmanAgent(CompetitionAgent):
             closestGhost = min(ghostDistance)
         else:
             closestGhost = 999
-
-
-
-
-        ###calculations###
-
 
         dangerousCorridor = 0
         #check if pacman currently is on a crossroad position
@@ -447,8 +408,7 @@ class MyPacmanAgent(CompetitionAgent):
         else:
             sumOfGhosts = 99999
 
-
-
+        #Go for capsules if there are both ghosts and a capsule nearby
         searchCapsule = 0
         if closestGhost < 10:
             if capsules and (min(capsuleDist) < 10):
@@ -475,7 +435,6 @@ class MyPacmanAgent(CompetitionAgent):
         #value that evaluates states better if ghosts are far away and scared ghosts are close
         ghostDistances = sumOfGhosts - sumOfScared
 
-
         #evaluate whether we ate a capsule
         if not ((oldCapsuleCount - newCapsuleCount) == 0):
             ateCapsule = True
@@ -483,18 +442,6 @@ class MyPacmanAgent(CompetitionAgent):
             ateCapsule = False
 
         huntGhosts = 0
-
-
-        #nearbyGhost=
-        #for ghost in GhostStates:
-        #    if dist(pos,ghost) < nearbyGhost
-        #        nearbyGhos=ghost
-
-        #TODO add cumulative dist to all ghosts
-
-
-
-
 
         #list of positions with food
         foodlist = []
@@ -504,31 +451,17 @@ class MyPacmanAgent(CompetitionAgent):
                     foodlist.append((w, h))
         foodDist = [ self.distancer.getDistance(Pos, food) for food in foodlist]
 
-
         #calculate furthest distance to food
         if foodDist:
             furthestFood = max(foodDist)
         else:
             furthestFood = 0
 
-
         #calculate closest food
         if foodDist:
             closestFood = min(foodDist)
         else:
             closestFood = 0
-        """
-        #closest ghost
-        if ghostDistance:
-            closestGhost = min(ghostDistance)
-            if closestGhost < 5:
-                if closestGhost<2:
-                    closestGhost=-float("Inf")
-                else:
-                    (5-closestGhost)*-10000000
-        else:
-            closestGhost = 99999
-        """
 
         # closest ghost
         if ghostDistance:
@@ -546,21 +479,21 @@ class MyPacmanAgent(CompetitionAgent):
         else:
             huntGhosts = 0
 
-        # first setup for 'trapped' function. We could play around with
-        # Ghostdistance
-        # the amount of food left for when you want pacman to be balsy (last pellet, last two?)
+        # Don't go into a dead corridor pacman can foresee when ghosts are too close
+        # unless the corridor probably contains the last food pellets
         trapped=0
         if (closestGhost<3) and (self.isTrapped(state)):
                 if not newFoodCount<3:
                     trapped=-float("Inf")
 
-        #Code from baseline agent. Seems pretty useless but hey, why not?
+        #Never prefer a losing state
         if currentGameState.isLose():
             return -float("Inf")
 
+        #measure of the amount of food eaten
         foodValue = (oldFoodCount - newFoodCount)
 
-        #return -closestFood*10 + closestGhost + furthestFood*0.1 + foodValue*5000 + ghostDistances*2 + huntGhosts + numberOfEatenGhosts + currentGameState.getScore() + closeScared*closestScared - dangerousCorridor + trapped + searchCapsule
+        #return -closestFood*10 + closestGhost + furthestFood*1 + foodValue*5000 + ghostDistances*2 + huntGhosts + numberOfEatenGhosts + currentGameState.getScore() + closeScared*closestScared - dangerousCorridor + trapped + searchCapsule
         return -closestFood * 10 + closestGhost + foodValue * 5000 + ghostDistances * 2 + huntGhosts + numberOfEatenGhosts + currentGameState.getScore() + closeScared * closestScared - dangerousCorridor + trapped + searchCapsule
 
     def evaluationFunctionBaseline(self, state):
