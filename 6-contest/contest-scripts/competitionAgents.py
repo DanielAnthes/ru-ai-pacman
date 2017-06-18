@@ -514,8 +514,10 @@ class MyPacmanAgent(CompetitionAgent):
         if ghostDistance:
             closestGhost = min(ghostDistance)
             if closestGhost < 5:
-                (5-closestGhost)*-10000000
-
+                if closestGhost<2:
+                    closestGhost=-float("Inf")
+                else:
+                    (5-closestGhost)*-10000000
         else:
             closestGhost = 99999
 
