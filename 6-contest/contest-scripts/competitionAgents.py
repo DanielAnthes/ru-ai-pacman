@@ -437,7 +437,6 @@ class MyPacmanAgent(CompetitionAgent):
         if numberOfEatenGhosts > 0:
             numberOfEatenGhosts = float("Inf")
 
-
         #TODO dont go for capsules if ghost in path
 
         #sum of distances to all ghosts
@@ -445,11 +444,6 @@ class MyPacmanAgent(CompetitionAgent):
             sumOfGhosts = sum(ghostDistance)
         else:
             sumOfGhosts = 99999
-
-
-
-
-
 
         #sum of distance to all scared ghosts and the closest scared ghost, if the closest scared ghost is closer than 10 steps closeScared is set to 1 and closestScared increases as pacman gets closer to the scared ghost
         if scaredDistance:
@@ -468,7 +462,6 @@ class MyPacmanAgent(CompetitionAgent):
         else:
             sumOfScared = 0
             closeScared = 0
-
 
         #value that evaluates states better if ghosts are far away and scared ghosts are close
         ghostDistances = sumOfGhosts - sumOfScared
@@ -517,15 +510,18 @@ class MyPacmanAgent(CompetitionAgent):
         else:
             closestFood = 0
 
-
         #closest ghost
         if ghostDistance:
             closestGhost = min(ghostDistance)
+            if closestGhost < 5:
+                (5-closestGhost)*-10000000
 
-            if closestGhost < 2:
-                closestGhost = -float("Inf")
         else:
             closestGhost = 99999
+
+        #if its closer than say 5 just do 5 - closest and multiply it by a high value
+            # if closestGhost < 2:
+            # closestGhost = -float("Inf")
 
         #if we can eat a capsule and ghosts are close, eat the capsule
         if scaredDistance:
@@ -539,7 +535,7 @@ class MyPacmanAgent(CompetitionAgent):
         # Ghostdistance
         # the amount of food left for when you want pacman to be balsy (last pellet, last two?)
         trapped=0
-        if (closestGhost<5) and (self.isTrapped(state)):
+        if (closestGhost<3) and (self.isTrapped(state)):
                 if not newFoodCount<3:
                     trapped=-float("Inf")
 
