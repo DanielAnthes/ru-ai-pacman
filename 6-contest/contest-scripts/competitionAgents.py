@@ -258,8 +258,6 @@ class MyPacmanAgent(CompetitionAgent):
         some Directions.X for some X in the set {North, South, West, East, Stop}.
         """
 
-
-
         if len(gameState.getGhostStates())>2:
             self.depth = 2
         else:
@@ -519,7 +517,7 @@ class MyPacmanAgent(CompetitionAgent):
             closestFood = min(foodDist)
         else:
             closestFood = 0
-
+        """
         #closest ghost
         if ghostDistance:
             closestGhost = min(ghostDistance)
@@ -530,10 +528,15 @@ class MyPacmanAgent(CompetitionAgent):
                     (5-closestGhost)*-10000000
         else:
             closestGhost = 99999
+        """
 
-        #if its closer than say 5 just do 5 - closest and multiply it by a high value
-            # if closestGhost < 2:
-            # closestGhost = -float("Inf")
+        # closest ghost
+        if ghostDistance:
+            closestGhost = min(ghostDistance)
+            if closestGhost < 2:
+                closestGhost = -float("Inf")
+        else:
+            closestGhost = 99999
 
         #if we can eat a capsule and ghosts are close, eat the capsule
         if scaredDistance:
