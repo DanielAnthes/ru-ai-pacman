@@ -363,6 +363,10 @@ class MyPacmanAgent(CompetitionAgent):
         oldCapsuleCount = len(initialState.getCapsules())
         newCapsuleCount = len(currentGameState.getCapsules())
 
+        capsules = currentGameState.getCapsules()
+        # distances to capsules
+        capsuleDist = [self.distancer.getDistance(Pos, capsule) for capsule in currentGameState.getCapsules()]
+
 
         #distances to ghosts and scared ghosts  in old and new states
         GhostStates = currentGameState.getGhostStates()
@@ -445,6 +449,13 @@ class MyPacmanAgent(CompetitionAgent):
         else:
             sumOfGhosts = 99999
 
+
+
+        searchCapsule = 0
+        if closestGhost < 10:
+            if capsules and (min(capsuleDist) < 10):
+                searchCapsule = (10 - (min(capsuleDist))) * 500
+
         #sum of distance to all scared ghosts and the closest scared ghost, if the closest scared ghost is closer than 10 steps closeScared is set to 1 and closestScared increases as pacman gets closer to the scared ghost
         if scaredDistance:
             sumOfScared = sum(scaredDistance)
@@ -484,8 +495,7 @@ class MyPacmanAgent(CompetitionAgent):
         #TODO add cumulative dist to all ghosts
 
 
-        #distances to capsules
-        capsuleDist = [ self.distancer.getDistance(Pos, capsule) for capsule in currentGameState.getCapsules()]
+
 
 
         #list of positions with food
@@ -548,7 +558,7 @@ class MyPacmanAgent(CompetitionAgent):
         foodValue = (oldFoodCount - newFoodCount)
 
         #TODO @win: I added the current gameScore to the eval function. Discuss if this is valuable or not
-        return -closestFood*10 + closestGhost + furthestFood*0.1 + foodValue*5000 + ghostDistances*2 + huntGhosts + numberOfEatenGhosts + currentGameState.getScore() + closeScared*closestScared - dangerousCorridor + trapped
+        return -closestFood*10 + closestGhost + furthestFood*0.1 + foodValue*5000 + ghostDistances*2 + huntGhosts + numberOfEatenGhosts + currentGameState.getScore() + closeScared*closestScared - dangerousCorridor + trapped + searchCapsule
 
 
 
