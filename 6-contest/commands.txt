@@ -2,6 +2,7 @@ python pacman.py -p MyPacmanAgent
 python pacman.py -p MyPacmanAgent -q -n 5
 python pacman.py -p BaselineAgent
 python pacman.py -p BaselineAgent -l level3_4
+python pacman.py -p MyPacmanAgent -l level3_4
 python pacman.py --help
 python pacman.py -n 10 -p BaselineAgent
 -p MyPacmanAgent -l level3_4

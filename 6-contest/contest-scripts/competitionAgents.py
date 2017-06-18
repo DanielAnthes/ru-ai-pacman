@@ -260,7 +260,7 @@ class MyPacmanAgent(CompetitionAgent):
 
 
 
-        if len(gameState.getGhostStates())>3:
+        if len(gameState.getGhostStates())>2:
             self.depth = 2
         else:
             self.depth = 1
